@@ -10,7 +10,7 @@ export enum ErrorMsgs {
 
 export async function initializeDB(): Promise<boolean> {
 	const driver: Driver = await connect();
-	const session: Session = driver.session();
+	let session: Session = driver.session();
 
 	const match: RecordShape = await session.run(`CREATE DATABASE ${process.env.AUTH_NEO4J_USERS_DB} IF NOT EXISTS WAIT`);
 
@@ -21,19 +21,26 @@ export async function initializeDB(): Promise<boolean> {
 	}
 
 	await session.close();
-	await driver.close();
 
-	await initializeConstraint(process.env.USERS_DB as string, 'User', 'email');
-	await initializeConstraint(process.env.USERS_DB as string, 'User', 'id');
-	await initializeConstraint(process.env.USERS_DB as string, 'Session', 'id');
+	session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB as string });
+
+	try {
+		await initializeConstraint(session, 'User', 'email');
+		await initializeConstraint(session, 'User', 'id');
+		await initializeConstraint(session, 'Session', 'id');
+	} catch (error) {
+		await session.close();
+		await driver.close();
+		throw error;
+	}
+
+	await session.close();
+	await driver.close();
 
 	return true;
 }
 
-export async function initializeConstraint(dbName: string, node: string, property: string): Promise<boolean> {
-	const driver: Driver = await connect();
-	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
-
+export async function initializeConstraint(session: Session, node: string, property: string): Promise<boolean> {
 	const constraintNameBase: string = `${node.toLowerCase()}_${property.toLowerCase()}`;
 
 	const match: RecordShape = await session.run(
@@ -41,31 +48,19 @@ export async function initializeConstraint(dbName: string, node: string, propert
 	);
 
 	if (match.summary.counters._stats.constraintsAdded !== 1) {
-		session.close();
-		driver.close();
 		throw new InternalError(ErrorMsgs.COULD_NOT_CREATE_CONSTRAINT, {
 			cause: { issue: ErrorMsgs.CONSTRAINT_ALREADY_EXISTS, constraintName: constraintNameBase + '_unique' },
 		});
 	}
-
-	await session.close();
-	await driver.close();
 	return true;
 }
 
-export async function verifyDB(dbName: string): Promise<boolean> {
-	const driver: Driver = await connect();
-	const session: Session = driver.session();
-	const match: RecordShape = await session.run(`SHOW DATABASE ${dbName}`);
-	await session.close();
-	await driver.close();
-	return match.records.length === 1;
-}
-
-export async function destroyDB(): Promise<void> {
+export async function destroyDB(): Promise<boolean> {
 	const driver: Driver = await connect();
 	const session: Session = driver.session();
 	await session.run(`DROP DATABASE ${process.env.AUTH_NEO4J_USERS_DB} IF EXISTS DESTROY DATA WAIT`);
 	await session.close();
 	await driver.close();
+
+	return true;
 }

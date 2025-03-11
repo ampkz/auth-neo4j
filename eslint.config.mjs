@@ -10,7 +10,7 @@ export default [
 	...tseslint.configs.recommended,
 	{
 		rules: {
-			'@typescript-eslint/no-explicit-any': 'error',
+			'@typescript-eslint/no-explicit-any': 'warn',
 		},
 	},
 ];
