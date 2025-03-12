@@ -40,7 +40,7 @@ export async function initializeDB(): Promise<boolean> {
 	return true;
 }
 
-export async function initializeConstraint(session: Session, node: string, property: string): Promise<boolean> {
+async function initializeConstraint(session: Session, node: string, property: string): Promise<boolean> {
 	const constraintNameBase: string = `${node.toLowerCase()}_${property.toLowerCase()}`;
 
 	const match: RecordShape = await session.run(
