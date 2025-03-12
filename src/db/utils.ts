@@ -28,6 +28,7 @@ export async function initializeDB(): Promise<boolean> {
 		await initializeConstraint(session, 'User', 'email');
 		await initializeConstraint(session, 'User', 'id');
 		await initializeConstraint(session, 'Session', 'id');
+		await initializeConstraint(session, 'HAS_SESSION', 'sessionId', true);
 	} catch (error) {
 		await session.close();
 		await driver.close();
@@ -40,16 +41,21 @@ export async function initializeDB(): Promise<boolean> {
 	return true;
 }
 
-async function initializeConstraint(session: Session, node: string, property: string): Promise<boolean> {
-	const constraintNameBase: string = `${node.toLowerCase()}_${property.toLowerCase()}`;
+async function initializeConstraint(session: Session, identifier: string, property: string, isRelationship: boolean = false): Promise<boolean> {
+	const constraintName: string = `${identifier.toLowerCase()}_${property.toLowerCase()}`;
+	let query: string;
 
-	const match: RecordShape = await session.run(
-		`CREATE CONSTRAINT ${constraintNameBase}_unique IF NOT EXISTS FOR (n:${node}) REQUIRE n.${property} IS UNIQUE`
-	);
+	if (isRelationship) {
+		query = `CREATE CONSTRAINT ${constraintName} IF NOT EXISTS FOR ()-[r:${identifier}]-() REQUIRE r.${property} IS RELATIONSHIP KEY`;
+	} else {
+		query = `CREATE CONSTRAINT ${constraintName} IF NOT EXISTS FOR (n:${identifier}) REQUIRE n.${property} IS NODE KEY`;
+	}
+
+	const match: RecordShape = await session.run(query);
 
 	if (match.summary.counters._stats.constraintsAdded !== 1) {
 		throw new InternalError(ErrorMsgs.COULD_NOT_CREATE_CONSTRAINT, {
-			cause: { issue: ErrorMsgs.CONSTRAINT_ALREADY_EXISTS, constraintName: constraintNameBase + '_unique' },
+			cause: { issue: ErrorMsgs.CONSTRAINT_ALREADY_EXISTS, constraintName },
 		});
 	}
 	return true;

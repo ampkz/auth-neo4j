@@ -1,5 +1,5 @@
 import neo4j, { Driver } from 'neo4j-driver';
-import { destroyDB, initializeDB, ErrorMsgs as DBErrorMsgs } from '../../db/utils';
+import { destroyDB, initializeDB, ErrorMsgs as DBErrorMsgs } from '../../src/db/utils';
 
 describe(`DB Utils Tests`, () => {
 	beforeEach(() => {

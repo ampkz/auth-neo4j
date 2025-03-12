@@ -1,4 +1,4 @@
-import { CustomError, InternalError } from '../../errors/errors';
+import { CustomError, InternalError } from '../../src/errors/errors';
 
 describe(`Errors Tests`, () => {
 	it(`should create a custom error with a code`, () => {

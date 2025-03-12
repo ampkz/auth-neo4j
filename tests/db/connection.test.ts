@@ -1,5 +1,5 @@
 import { Driver, ServerInfo } from 'neo4j-driver';
-import { connect, Errors as DBErrors } from '../../db/connection';
+import { connect, Errors as DBErrors } from '../../src/db/connection';
 
 describe(`DB Connection Tests`, () => {
 	it(`should connecto to the DB`, async () => {
