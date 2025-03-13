@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Auth } from '../../../src/auth/auth';
 import { User } from '../../../src/users/user';
-import { createUser, Errors as CRUDUserErrors, getUserByEmail } from '../../../src/db/users/crud-user';
+import { createUser, Errors as CRUDUserErrors, deleteUser, getUserByEmail } from '../../../src/db/users/crud-user';
 import neo4j, { Driver } from 'neo4j-driver';
 
 describe(`CRUD User Test`, () => {
@@ -26,13 +26,13 @@ describe(`CRUD User Test`, () => {
 	});
 
 	test(`createUser should throw an error if there was a server error`, async () => {
-		const createUserSessionMock = {
+		const createUserMock = {
 			run: jest.fn().mockRejectedValue(CRUDUserErrors.COULD_NOT_CREATE_USER),
 			close: jest.fn(),
 		};
 
 		const driverMock = {
-			session: jest.fn().mockReturnValueOnce(createUserSessionMock),
+			session: jest.fn().mockReturnValueOnce(createUserMock),
 			close: jest.fn(),
 			getServerInfo: jest.fn(),
 		} as unknown as Driver;
@@ -46,13 +46,13 @@ describe(`CRUD User Test`, () => {
 	});
 
 	test(`createUser should return undefined if no user was created`, async () => {
-		const createUserSessionMock = {
+		const createUserMock = {
 			run: jest.fn().mockResolvedValue({ records: [] }),
 			close: jest.fn(),
 		};
 
 		const driverMock = {
-			session: jest.fn().mockReturnValueOnce(createUserSessionMock),
+			session: jest.fn().mockReturnValueOnce(createUserMock),
 			close: jest.fn(),
 			getServerInfo: jest.fn(),
 		} as unknown as Driver;
@@ -83,13 +83,13 @@ describe(`CRUD User Test`, () => {
 	});
 
 	test(`getUserByEmail should throw an error if there was a server error`, async () => {
-		const getUserSessionMock = {
+		const getUserMock = {
 			run: jest.fn().mockRejectedValue(CRUDUserErrors.COULD_NOT_GET_USER),
 			close: jest.fn(),
 		};
 
 		const driverMock = {
-			session: jest.fn().mockReturnValueOnce(getUserSessionMock),
+			session: jest.fn().mockReturnValueOnce(getUserMock),
 			close: jest.fn(),
 			getServerInfo: jest.fn(),
 		} as unknown as Driver;
@@ -98,5 +98,40 @@ describe(`CRUD User Test`, () => {
 		driverSpy.mockReturnValue(driverMock);
 
 		await expect(getUserByEmail(faker.internet.email())).rejects.toBeDefined();
+	});
+
+	test(`deleteUser should delete a created user`, async () => {
+		const email: string = faker.internet.email();
+		const user: User | undefined = await createUser(new User({ email, auth: Auth.ADMIN }), faker.internet.password());
+
+		const matchedUser: User | undefined = await deleteUser(email);
+
+		expect(matchedUser).toEqual(user);
+	});
+
+	test(`deleteUser should return undefined if no user was deleted`, async () => {
+		const email: string = faker.internet.email();
+
+		const matchedUser: User | undefined = await deleteUser(email);
+
+		expect(matchedUser).toBeUndefined();
+	});
+
+	test(`deleteUser should throw an error if there was a server error`, async () => {
+		const deleteUserMock = {
+			run: jest.fn().mockRejectedValue(CRUDUserErrors.COULD_NOT_DELETE_USER),
+			close: jest.fn(),
+		};
+
+		const driverMock = {
+			session: jest.fn().mockReturnValueOnce(deleteUserMock),
+			close: jest.fn(),
+			getServerInfo: jest.fn(),
+		} as unknown as Driver;
+
+		const driverSpy = jest.spyOn(neo4j, 'driver');
+		driverSpy.mockReturnValue(driverMock);
+
+		await expect(deleteUser(faker.internet.email())).rejects.toBeDefined();
 	});
 });

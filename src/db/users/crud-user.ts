@@ -7,6 +7,7 @@ import { InternalError } from '../../errors/errors';
 export enum Errors {
 	COULD_NOT_CREATE_USER = 'There was an error trying to create user.',
 	COULD_NOT_GET_USER = 'There was an error trying to search for user.',
+	COULD_NOT_DELETE_USER = 'There was an error trying to delete user.',
 }
 
 export async function createUser(user: User, password: string): Promise<User | undefined> {
@@ -63,4 +64,28 @@ export async function getUserByEmail(email: string): Promise<User | undefined> {
 	}
 
 	return new User(match.records[0].get('u').properties);
+}
+
+export async function deleteUser(email: string): Promise<User | undefined> {
+	const driver: Driver = await connect();
+	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+
+	let match: RecordShape;
+
+	try {
+		match = await session.run(`MATCH (u:User {email: $email}) WITH u, properties(u) as p DETACH DELETE u RETURN p`, { email });
+	} catch (error) {
+		await session.close();
+		await driver.close();
+		throw new InternalError(Errors.COULD_NOT_DELETE_USER, { cause: error });
+	}
+
+	await session.close();
+	await driver.close();
+
+	if (match.records.length !== 1) {
+		return undefined;
+	}
+
+	return new User(match.records[0].get('p'));
 }
