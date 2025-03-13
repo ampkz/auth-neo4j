@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Auth } from '../../../src/auth/auth';
-import { User } from '../../../src/users/user';
-import { createUser, Errors as CRUDUserErrors, deleteUser, getUserByEmail } from '../../../src/db/users/crud-user';
+import { UserUpdates, User } from '../../../src/users/user';
+import { createUser, Errors as CRUDUserErrors, deleteUser, getUserByEmail, updateUser } from '../../../src/db/users/crud-user';
 import neo4j, { Driver } from 'neo4j-driver';
 
 describe(`CRUD User Test`, () => {
@@ -9,7 +9,7 @@ describe(`CRUD User Test`, () => {
 		jest.restoreAllMocks();
 	});
 
-	it(`should create a user`, async () => {
+	test(`createUser should create a user`, async () => {
 		const user: User = new User({
 			email: faker.internet.email(),
 			auth: Auth.ADMIN,
@@ -133,5 +133,80 @@ describe(`CRUD User Test`, () => {
 		driverSpy.mockReturnValue(driverMock);
 
 		await expect(deleteUser(faker.internet.email())).rejects.toBeDefined();
+	});
+
+	test(`updateUser should update a user`, async () => {
+		const user: User = new User({
+			email: faker.internet.email(),
+			auth: Auth.ADMIN,
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
+			secondName: faker.person.middleName(),
+		});
+
+		const userUpdates: UserUpdates = {
+			updatedAuth: Auth.CONTRIBUTOR,
+			updatedEmail: faker.internet.email(),
+			updatedFirstName: faker.person.firstName(),
+			updatedLastName: faker.person.lastName(),
+			updatedPassword: faker.internet.password(),
+			updatedSecondName: faker.person.middleName(),
+		};
+
+		const createdUser: User | undefined = await createUser(user, faker.internet.password());
+		const updatedUser: User | undefined = await updateUser(user.email, userUpdates);
+
+		expect(updatedUser).toEqual(
+			new User({
+				email: userUpdates.updatedEmail as string,
+				auth: userUpdates.updatedAuth as Auth,
+				firstName: userUpdates.updatedFirstName,
+				lastName: userUpdates.updatedLastName,
+				secondName: userUpdates.updatedSecondName,
+				id: createdUser?.id,
+			})
+		);
+	});
+
+	test(`updateUser should return undefined if no user was updated`, async () => {
+		const userUpdates: UserUpdates = {
+			updatedAuth: Auth.CONTRIBUTOR,
+			updatedEmail: faker.internet.email(),
+			updatedFirstName: faker.person.firstName(),
+			updatedLastName: faker.person.lastName(),
+			updatedPassword: faker.internet.password(),
+			updatedSecondName: faker.person.middleName(),
+		};
+
+		const updatedUser: User | undefined = await updateUser(faker.internet.password(), userUpdates);
+
+		expect(updatedUser).toBeUndefined();
+	});
+
+	test(`updateUser should should throw an error if there was a server error`, async () => {
+		const userUpdates: UserUpdates = {
+			updatedAuth: Auth.CONTRIBUTOR,
+			updatedEmail: faker.internet.email(),
+			updatedFirstName: faker.person.firstName(),
+			updatedLastName: faker.person.lastName(),
+			updatedPassword: faker.internet.password(),
+			updatedSecondName: faker.person.middleName(),
+		};
+
+		const updateUserMock = {
+			run: jest.fn().mockRejectedValue(CRUDUserErrors.COULD_NOT_UPDATE_USER),
+			close: jest.fn(),
+		};
+
+		const driverMock = {
+			session: jest.fn().mockReturnValueOnce(updateUserMock),
+			close: jest.fn(),
+			getServerInfo: jest.fn(),
+		} as unknown as Driver;
+
+		const driverSpy = jest.spyOn(neo4j, 'driver');
+		driverSpy.mockReturnValue(driverMock);
+
+		await expect(updateUser(faker.internet.email(), userUpdates)).rejects.toBeDefined();
 	});
 });

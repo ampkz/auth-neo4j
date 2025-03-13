@@ -9,6 +9,15 @@ export interface IUser {
 	secondName?: string;
 }
 
+export type UserUpdates = {
+	updatedEmail?: string;
+	updatedFirstName?: string;
+	updatedSecondName?: string;
+	updatedLastName?: string;
+	updatedAuth?: string;
+	updatedPassword?: string;
+};
+
 export class User implements IUser {
 	public id?: string;
 	public email: string;
