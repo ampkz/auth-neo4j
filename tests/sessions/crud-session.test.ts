@@ -75,6 +75,45 @@ describe(`CRUD Session Tests`, () => {
 		expect(svr.user).toEqual(user);
 	});
 
+	test(`validateSession should invalidate an expired session`, async () => {
+		const token: string = generateSessionToken();
+		const session: Session = (await createSession(token, email)) as Session;
+
+		const mockRecord = {
+			get: (key: string) => {
+				if (key === 'u') {
+					return { properties: { ...user } };
+				}
+
+				if (key === 'r') {
+					return { properties: { sessionId: session.id } };
+				}
+
+				if (key === 's') {
+					return { properties: { ...session, expiresAt: new Date().toISOString() } };
+				}
+			},
+		};
+
+		const dbCreationSessionMock = {
+			run: jest.fn().mockResolvedValue({ records: [mockRecord] }),
+			close: jest.fn(),
+		};
+
+		const driverMock = {
+			session: jest.fn().mockReturnValueOnce(dbCreationSessionMock),
+			close: jest.fn(),
+			getServerInfo: jest.fn(),
+		} as unknown as Driver;
+
+		const driverSpy = jest.spyOn(neo4j, 'driver');
+		driverSpy.mockReturnValueOnce(driverMock);
+
+		const svr: SessionValidationResult = await validateSessionToken(token);
+		expect(svr.session).toBeNull();
+		expect(svr.user).toBeNull();
+	});
+
 	test(`validateSession should return undefined if no token`, async () => {
 		const svr: SessionValidationResult = await validateSessionToken();
 

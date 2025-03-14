@@ -80,13 +80,17 @@ export async function validateSessionToken(token?: string): Promise<SessionValid
 		return { session: null, user: null };
 	}
 
-	//TODO invalidate/update based on time
-
 	const user: User = new User(match.records[0].get('u').properties);
 	const session: Session = match.records[0].get('s').properties;
 	session.id = match.records[0].get('r').properties.sessionId;
 	session.userID = user.id as string;
 	session.expiresAt = new Date(session.expiresAt);
+
+	//TODO invalidate/update based on time
+	if (Date.now() >= session.expiresAt.getTime()) {
+		await invalidateSession(session.id);
+		return { session: null, user: null };
+	}
 
 	return { session, user };
 }
