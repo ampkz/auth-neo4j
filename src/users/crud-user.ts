@@ -1,8 +1,8 @@
 import * as bcrypt from 'bcrypt';
-import { UserUpdates, User } from '../../users/user';
+import { UserUpdates, User } from './user';
 import { Driver, RecordShape, Session } from 'neo4j-driver';
-import { connect } from '../connection';
-import { InternalError } from '../../errors/errors';
+import { connect } from '../db/connection';
+import { InternalError } from '../errors/errors';
 
 export enum Errors {
 	COULD_NOT_CREATE_USER = 'There was an error trying to create user.',
