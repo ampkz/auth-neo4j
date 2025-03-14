@@ -1,5 +1,5 @@
-import { generateSessionToken, hashToken, Session } from '../../src/sessions/session';
-import { createSession, Errors as CRUDSessionErrors } from '../../src/sessions/crud-session';
+import { generateSessionToken, hashToken, Session, SessionValidationResult } from '../../src/sessions/session';
+import { createSession, Errors as CRUDSessionErrors, validateSessionToken } from '../../src/sessions/crud-session';
 import { createUser } from '../../src/users/crud-user';
 import { Auth } from '../../src/auth/auth';
 import { faker } from '@faker-js/faker';
@@ -14,12 +14,13 @@ describe(`CRUD Session Tests`, () => {
 		user = (await createUser(new User({ auth: Auth.ADMIN, email }), faker.internet.password())) as User;
 	});
 
+	beforeEach(() => {
+		jest.restoreAllMocks();
+	});
+
 	test(`createSession should create a session`, async () => {
 		const token: string = generateSessionToken();
 		const session: Session = (await createSession(token, user.email)) as Session;
-
-		const compDate: Date = new Date();
-		compDate.setDate(compDate.getDate() + parseInt(process.env.AUTH_NEO4J_TOKEN_EXPIRATION as string));
 
 		expect(session).toBeDefined();
 		expect(session.id).toEqual(hashToken(token));
@@ -52,5 +53,51 @@ describe(`CRUD Session Tests`, () => {
 		const token: string = generateSessionToken();
 
 		await expect(createSession(token, email)).rejects.toBeDefined();
+	});
+
+	test(`validateSession should validate an existing session`, async () => {
+		const token: string = generateSessionToken();
+		const session: Session = (await createSession(token, email)) as Session;
+
+		const svr: SessionValidationResult = await validateSessionToken(token);
+
+		expect(svr.session).toBeDefined();
+		expect(svr.user).toBeDefined();
+		expect(svr.session?.id).toEqual(session.id);
+		expect(svr.session?.userID).toEqual(user.id);
+		expect(svr.session?.expiresAt).toEqual(session.expiresAt);
+		expect(svr.user).toEqual(user);
+	});
+
+	test(`validateSession should return undefined if no token`, async () => {
+		const svr: SessionValidationResult = await validateSessionToken();
+
+		expect(svr.session).toBeNull();
+		expect(svr.user).toBeNull();
+	});
+
+	test(`validateSession should return undefined with an unknown token`, async () => {
+		const svr: SessionValidationResult = await validateSessionToken(generateSessionToken());
+
+		expect(svr.session).toBeNull();
+		expect(svr.user).toBeNull();
+	});
+
+	test(`validateSession should throw an error if there was an issue with the server`, async () => {
+		const validateSessionMock = {
+			run: jest.fn().mockRejectedValue(CRUDSessionErrors.COULD_NOT_VALIDATE_SESSION),
+			close: jest.fn(),
+		};
+
+		const driverMock = {
+			session: jest.fn().mockReturnValueOnce(validateSessionMock),
+			close: jest.fn(),
+			getServerInfo: jest.fn(),
+		} as unknown as Driver;
+
+		const driverSpy = jest.spyOn(neo4j, 'driver');
+		driverSpy.mockReturnValue(driverMock);
+
+		await expect(validateSessionToken(generateSessionToken())).rejects.toBeDefined();
 	});
 });

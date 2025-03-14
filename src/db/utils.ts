@@ -27,7 +27,6 @@ export async function initializeDB(): Promise<boolean> {
 	try {
 		await initializeConstraint(session, 'User', 'email');
 		await initializeConstraint(session, 'User', 'id');
-		await initializeConstraint(session, 'Session', 'id');
 		await initializeConstraint(session, 'HAS_SESSION', 'sessionId', true);
 	} catch (error) {
 		await session.close();
