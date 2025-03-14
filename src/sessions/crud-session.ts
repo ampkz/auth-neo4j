@@ -7,7 +7,8 @@ import { User } from '../users/user';
 
 export enum Errors {
 	COULD_NOT_CREATE_SESSION = 'There was an error creating a session',
-	COULD_NOT_VALIDATE_SESSION = 'There was an error vvalidating a session',
+	COULD_NOT_VALIDATE_SESSION = 'There was an error validating a session',
+	COULD_NOT_INVALIDATE_SESSION = 'There was an error invalidating a session',
 }
 
 export async function createSession(token: string, email: string): Promise<Session | undefined> {
@@ -87,4 +88,21 @@ export async function validateSessionToken(token?: string): Promise<SessionValid
 	session.expiresAt = new Date(session.expiresAt);
 
 	return { session, user };
+}
+
+export async function invalidateSession(sessionId: string): Promise<void> {
+	const driver = await connect();
+	const neoSession: NeoSession = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+
+	try {
+		await neoSession.run(`MATCH (u:User)-[r:HAS_SESSION {sessionId: $sessionId}]->(s:Session) DETACH DELETE s`, { sessionId });
+	} catch (error) {
+		await neoSession.close();
+		await driver.close();
+
+		throw new InternalError(Errors.COULD_NOT_INVALIDATE_SESSION, { cause: error });
+	}
+
+	await neoSession.close();
+	await driver.close();
 }
