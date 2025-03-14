@@ -1,5 +1,11 @@
 import { generateSessionToken, hashToken, Session, SessionValidationResult } from '../../src/sessions/session';
-import { createSession, Errors as CRUDSessionErrors, invalidateSession, validateSessionToken } from '../../src/sessions/crud-session';
+import {
+	createSession,
+	Errors as CRUDSessionErrors,
+	invalidateAllSessions,
+	invalidateSession,
+	validateSessionToken,
+} from '../../src/sessions/crud-session';
 import { createUser } from '../../src/users/crud-user';
 import { Auth } from '../../src/auth/auth';
 import { faker } from '@faker-js/faker';
@@ -129,5 +135,41 @@ describe(`CRUD Session Tests`, () => {
 		driverSpy.mockReturnValue(driverMock);
 
 		await expect(invalidateSession(faker.database.mongodbObjectId())).rejects.toBeDefined();
+	});
+
+	test(`invalidateAllSessions should invalidate all sessions`, async () => {
+		const tokenOne: string = generateSessionToken();
+		await createSession(tokenOne, email);
+
+		const tokenTwo: string = generateSessionToken();
+		await createSession(tokenTwo, email);
+
+		await invalidateAllSessions(email);
+
+		const svrOne: SessionValidationResult = await validateSessionToken(tokenOne);
+		const svrTwo: SessionValidationResult = await validateSessionToken(tokenTwo);
+
+		expect(svrOne.session).toBeNull();
+		expect(svrOne.user).toBeNull();
+		expect(svrTwo.session).toBeNull();
+		expect(svrTwo.user).toBeNull();
+	});
+
+	test(`invalidateSession should throw an error if there was an issue with the server`, async () => {
+		const invalidateAllSessionsMock = {
+			run: jest.fn().mockRejectedValue(CRUDSessionErrors.COULD_NOT_INVALIDATE_SESSION),
+			close: jest.fn(),
+		};
+
+		const driverMock = {
+			session: jest.fn().mockReturnValueOnce(invalidateAllSessionsMock),
+			close: jest.fn(),
+			getServerInfo: jest.fn(),
+		} as unknown as Driver;
+
+		const driverSpy = jest.spyOn(neo4j, 'driver');
+		driverSpy.mockReturnValue(driverMock);
+
+		await expect(invalidateAllSessions(email)).rejects.toBeDefined();
 	});
 });
