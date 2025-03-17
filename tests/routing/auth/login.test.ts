@@ -1,11 +1,11 @@
 import { Express } from 'express';
-import authNeo4j from '../../src';
+import authNeo4j from '../../../src';
 import request from 'supertest';
 import { faker } from '@faker-js/faker';
-import { FieldError, RoutingErrors } from '../../src/errors/errors';
-import * as user from '../../src/users/user';
-import * as crudSession from '../../src/sessions/crud-session';
-import { Auth } from '../../src/auth/auth';
+import { FieldError, RoutingErrors } from '../../../src/errors/errors';
+import * as user from '../../../src/users/user';
+import * as crudSession from '../../../src/sessions/crud-session';
+import { Auth } from '../../../src/auth/auth';
 
 describe(`Auth Route Tests`, () => {
 	let app: Express;
