@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { UserUpdates, User } from './user';
-import { Driver, RecordShape, Session } from 'neo4j-driver';
+import { Driver, Record, RecordShape, Session } from 'neo4j-driver';
 import { connect } from '../db/connection';
 import { InternalError } from '../errors/errors';
 
@@ -126,4 +126,30 @@ export async function updateUser(email: string, userUpdates: UserUpdates): Promi
 	}
 
 	return new User(match.records[0].get('u').properties);
+}
+
+export async function getAllUsers(): Promise<Array<User>> {
+	const users: Array<User> = [];
+
+	const driver: Driver = await connect();
+	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+
+	let match: RecordShape;
+
+	try {
+		match = await session.run(`MATCH (u:User) RETURN u`);
+	} catch (error) {
+		await session.close();
+		await driver.close();
+		throw new InternalError(Errors.COULD_NOT_GET_USER, { cause: error });
+	}
+
+	await session.close();
+	await driver.close();
+
+	match.records.map((record: Record) => {
+		users.push(new User(record.get('u').properties));
+	});
+
+	return users;
 }

@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Auth } from '../../src/auth/auth';
 import { UserUpdates, User } from '../../src/users/user';
-import { createUser, Errors as CRUDUserErrors, deleteUser, getUserByEmail, updateUser } from '../../src/users/crud-user';
+import { createUser, Errors as CRUDUserErrors, deleteUser, getAllUsers, getUserByEmail, updateUser } from '../../src/users/crud-user';
 import neo4j, { Driver } from 'neo4j-driver';
 
 describe(`CRUD User Test`, () => {
@@ -208,5 +208,35 @@ describe(`CRUD User Test`, () => {
 		driverSpy.mockReturnValue(driverMock);
 
 		await expect(updateUser(faker.internet.email(), userUpdates)).rejects.toBeDefined();
+	});
+
+	test(`getAllUsers should return a list of all users`, async () => {
+		const userOne = await createUser(new User({ email: faker.internet.email(), auth: Auth.ADMIN }), faker.internet.password());
+		const userTwo = await createUser(new User({ email: faker.internet.email(), auth: Auth.ADMIN }), faker.internet.password());
+		const userThree = await createUser(new User({ email: faker.internet.email(), auth: Auth.ADMIN }), faker.internet.password());
+
+		const users = await getAllUsers();
+
+		expect(users).toContainEqual(userOne);
+		expect(users).toContainEqual(userTwo);
+		expect(users).toContainEqual(userThree);
+	});
+
+	test(`getAllUsers should throw an error if there was server error`, async () => {
+		const getAllUsersMock = {
+			run: jest.fn().mockRejectedValue(CRUDUserErrors.COULD_NOT_GET_USER),
+			close: jest.fn(),
+		};
+
+		const driverMock = {
+			session: jest.fn().mockReturnValueOnce(getAllUsersMock),
+			close: jest.fn(),
+			getServerInfo: jest.fn(),
+		} as unknown as Driver;
+
+		const driverSpy = jest.spyOn(neo4j, 'driver');
+		driverSpy.mockReturnValue(driverMock);
+
+		await expect(getAllUsers()).rejects.toBeDefined();
 	});
 });
