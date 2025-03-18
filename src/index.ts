@@ -1,4 +1,5 @@
 import authRouter from './routing/auth';
+import userRouter from './routing/users';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 
@@ -45,6 +46,7 @@ async function authNeo4j(config?: AuthNeo4jConfig) {
 	app.use(express.urlencoded({ extended: true }));
 
 	app.use(authRouter);
+	app.use(userRouter);
 
 	return app;
 }
