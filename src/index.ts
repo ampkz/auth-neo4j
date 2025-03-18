@@ -1,5 +1,5 @@
 import authRouter from './routing/auth';
-import userRouter from './routing/users';
+import userRouter from './routing/user';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 
