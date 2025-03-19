@@ -154,7 +154,7 @@ describe(`CRUD User Test`, () => {
 		};
 
 		const createdUser: User | undefined = await createUser(user, faker.internet.password());
-		const updatedUser: User | undefined = await updateUser(user.email, userUpdates);
+		const updatedUser: User | undefined = await updateUser(createdUser?.id as string, userUpdates);
 
 		expect(updatedUser).toEqual(
 			new User({
@@ -178,7 +178,7 @@ describe(`CRUD User Test`, () => {
 			updatedSecondName: faker.person.middleName(),
 		};
 
-		const updatedUser: User | undefined = await updateUser(faker.internet.password(), userUpdates);
+		const updatedUser: User | undefined = await updateUser(faker.database.mongodbObjectId(), userUpdates);
 
 		expect(updatedUser).toBeUndefined();
 	});
@@ -207,7 +207,7 @@ describe(`CRUD User Test`, () => {
 		const driverSpy = jest.spyOn(neo4j, 'driver');
 		driverSpy.mockReturnValue(driverMock);
 
-		await expect(updateUser(faker.internet.email(), userUpdates)).rejects.toBeDefined();
+		await expect(updateUser(faker.database.mongodbObjectId(), userUpdates)).rejects.toBeDefined();
 	});
 
 	test(`getAllUsers should return a list of all users`, async () => {

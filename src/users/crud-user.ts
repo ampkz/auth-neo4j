@@ -91,7 +91,7 @@ export async function deleteUser(id: string): Promise<User | undefined> {
 	return new User(match.records[0].get('p'));
 }
 
-export async function updateUser(email: string, userUpdates: UserUpdates): Promise<User | undefined> {
+export async function updateUser(id: string, userUpdates: UserUpdates): Promise<User | undefined> {
 	const props: string[] = [];
 
 	if (userUpdates.updatedPassword) {
@@ -111,7 +111,7 @@ export async function updateUser(email: string, userUpdates: UserUpdates): Promi
 	let match: RecordShape;
 
 	try {
-		match = await session.run(`MATCH (u:User {email: $email}) SET ${props.join(',')} RETURN u`, { email, ...userUpdates });
+		match = await session.run(`MATCH (u:User {id: $id}) SET ${props.join(',')} RETURN u`, { id, ...userUpdates });
 	} catch (error) {
 		await session.close();
 		await driver.close();
