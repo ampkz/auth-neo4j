@@ -3,3 +3,7 @@ export enum Auth {
 	CONTRIBUTOR = 'CONTRIBUTOR',
 	SELF = 'SELF',
 }
+
+export function isValidAuth(auth: Auth): boolean {
+	return Object.values(Auth).includes(auth);
+}

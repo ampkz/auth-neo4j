@@ -26,6 +26,7 @@ export type FieldErrorJSON = { field: string; message: string };
 
 export class FieldError {
 	static REQUIRED: string = 'Required';
+	static INVALID_AUTH = 'Invalid Auth Type.';
 
 	private _field: string;
 	private _message: string;

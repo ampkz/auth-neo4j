@@ -51,7 +51,6 @@ describe(`Auth Route Tests`, () => {
 			.send({ email: faker.internet.email() })
 			.expect(400)
 			.then(response => {
-				expect(true).toBeTruthy();
 				expect(response.body.message).toBe(RoutingErrors.INVALID_REQUEST);
 				expect(response.body.data).toContainEqual({ field: 'password', message: FieldError.REQUIRED });
 			});
@@ -63,7 +62,6 @@ describe(`Auth Route Tests`, () => {
 			.send({ password: faker.internet.password() })
 			.expect(400)
 			.then(response => {
-				expect(true).toBeTruthy();
 				expect(response.body.message).toBe(RoutingErrors.INVALID_REQUEST);
 				expect(response.body.data).toContainEqual({ field: 'email', message: FieldError.REQUIRED });
 			});
