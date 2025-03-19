@@ -8,7 +8,7 @@ import { Auth } from '../../../src/auth/auth';
 import { User } from '../../../src/users/user';
 import { faker } from '@faker-js/faker';
 
-describe(`Get User Route Tests`, () => {
+describe(`Get Users Route Tests`, () => {
 	let app: Express;
 
 	beforeAll(async () => {

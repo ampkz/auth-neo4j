@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import { User } from '../../users/user';
-import { getAllUsers, createUser as dbCreateUser, deleteUser as dbDeleteUser, getUser, updateUser as dbUpdateUser } from '../../users/crud-user';
+import {
+	getAllUsers,
+	createUser as dbCreateUser,
+	deleteUser as dbDeleteUser,
+	getUser as dbGetUser,
+	updateUser as dbUpdateUser,
+} from '../../users/crud-user';
 import { FieldError, FieldErrors, RoutingErrors } from '../../errors/errors';
 import { isRoleEscalation, isValidAuth } from '../../auth/auth';
 
@@ -8,6 +14,18 @@ export async function getUsers(req: Request, res: Response) {
 	const users: Array<User> = await getAllUsers();
 
 	return res.status(200).json(users);
+}
+
+export async function getUser(req: Request, res: Response) {
+	const { id } = req.params;
+
+	const user: User | undefined = await dbGetUser(id);
+
+	if (!user) {
+		return res.status(404).end();
+	}
+
+	return res.status(200).json(user).end();
 }
 
 export async function createUser(req: Request, res: Response) {
@@ -56,7 +74,7 @@ export async function updateUser(req: Request, res: Response) {
 		return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
 	}
 
-	const user: User | undefined = await getUser(id);
+	const user: User | undefined = await dbGetUser(id);
 
 	if (!user) {
 		return res.status(404).end();
