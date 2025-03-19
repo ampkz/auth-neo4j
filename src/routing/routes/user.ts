@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../../users/user';
-import { getAllUsers, createUser as dbCreateUser } from '../../users/crud-user';
+import { getAllUsers, createUser as dbCreateUser, deleteUser as dbDeleteUser } from '../../users/crud-user';
 import { FieldError, FieldErrors, RoutingErrors } from '../../errors/errors';
 import { isValidAuth } from '../../auth/auth';
 
@@ -35,4 +35,11 @@ export async function createUser(req: Request, res: Response) {
 
 export async function deleteUser(req: Request, res: Response) {
 	const { id } = req.params;
+	const deletedUser: User | undefined = await dbDeleteUser(id);
+
+	if (deletedUser) {
+		return res.status(204).end();
+	} else {
+		return res.status(422).end();
+	}
 }
