@@ -1,6 +1,6 @@
 {
 	"name": "auth-neo4j",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "",
 	"homepage": "https://github.com/ampkz/auth-neo4j#readme",
 	"bugs": {
@@ -13,8 +13,9 @@
 	"license": "GPL-3.0-or-later",
 	"author": "Andrew M. Pankratz",
 	"type": "commonjs",
-	"main": "./build/index.js",
+	"main": "./dist/index.js",
 	"scripts": {
+		"build": "tsc",
 		"test": "jest --coverage"
 	},
 	"devDependencies": {
@@ -42,9 +43,7 @@
 	"dependencies": {
 		"bcrypt": "^5.1.1",
 		"cookie-parser": "^1.4.7",
-		"cors": "^2.8.5",
 		"express": "^4.21.2",
-		"helmet": "^8.0.0",
 		"jsonwebtoken": "^9.0.2",
 		"neo4j-driver": "^5.28.0"
 	}
