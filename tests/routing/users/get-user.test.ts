@@ -83,11 +83,11 @@ describe(`Get User Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 401 status without token cookie`, async () => {
+	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 401 status without token cookie`, async () => {
 		await request(app).get(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 403 status if the session couldn't be validated`, async () => {
+	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 403 status if the session couldn't be validated`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -99,7 +99,7 @@ describe(`Get User Route Tests`, () => {
 		await request(app).get(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 401 status as non-self contributor`, async () => {
+	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 401 status as non-self contributor`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
