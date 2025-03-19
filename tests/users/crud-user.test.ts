@@ -104,15 +104,15 @@ describe(`CRUD User Test`, () => {
 		const email: string = faker.internet.email();
 		const user: User | undefined = await createUser(new User({ email, auth: Auth.ADMIN }), faker.internet.password());
 
-		const matchedUser: User | undefined = await deleteUser(email);
+		const matchedUser: User | undefined = await deleteUser(user?.id as string);
 
 		expect(matchedUser).toEqual(user);
 	});
 
 	test(`deleteUser should return undefined if no user was deleted`, async () => {
-		const email: string = faker.internet.email();
+		const id: string = faker.database.mongodbObjectId();
 
-		const matchedUser: User | undefined = await deleteUser(email);
+		const matchedUser: User | undefined = await deleteUser(id);
 
 		expect(matchedUser).toBeUndefined();
 	});
@@ -132,7 +132,7 @@ describe(`CRUD User Test`, () => {
 		const driverSpy = jest.spyOn(neo4j, 'driver');
 		driverSpy.mockReturnValue(driverMock);
 
-		await expect(deleteUser(faker.internet.email())).rejects.toBeDefined();
+		await expect(deleteUser(faker.database.mongodbObjectId())).rejects.toBeDefined();
 	});
 
 	test(`updateUser should update a user`, async () => {
