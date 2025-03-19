@@ -43,7 +43,7 @@ export async function createUser(user: User, password: string): Promise<User | u
 	return new User(match.records[0].get('u').properties);
 }
 
-export async function getUserById(id: string): Promise<User | undefined> {
+export async function getUser(id: string): Promise<User | undefined> {
 	const driver: Driver = await connect();
 	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
 
