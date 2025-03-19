@@ -20,33 +20,6 @@ describe(`Auth Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	// test(`${process.env.AUTH_NEO4J_USER_URI} should send 200 status with list of users on GET with admin auth`, async () => {
-	// 	const token = generateSessionToken();
-
-	// 	const userOne = new User({ email: faker.internet.email(), auth: Auth.ADMIN });
-	// 	const userTwo = new User({ email: faker.internet.email(), auth: Auth.ADMIN });
-	// 	const userThree = new User({ email: faker.internet.email(), auth: Auth.ADMIN });
-
-	// 	const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
-	// 	validateSessionTokenSpy.mockResolvedValueOnce({
-	// 		session: { id: '', userID: '', expiresAt: new Date() },
-	// 		user: { id: '', email: '', auth: Auth.ADMIN },
-	// 	});
-
-	// 	const getAllusersSpy = jest.spyOn(crudUser, 'getAllUsers');
-	// 	getAllusersSpy.mockResolvedValueOnce([userOne, userTwo, userThree]);
-
-	// 	await request(app)
-	// 		.get(process.env.AUTH_NEO4J_USER_URI as string)
-	// 		.set('Cookie', `token=${token}`)
-	// 		.expect(200)
-	// 		.then(response => {
-	// 			expect(response.body).toContainEqual(userOne);
-	// 			expect(response.body).toContainEqual(userTwo);
-	// 			expect(response.body).toContainEqual(userThree);
-	// 		});
-	// });
-
 	test(`${process.env.AUTH_NEO4J_USER_URI} should send 403 status if the session couldn't be validated`, async () => {
 		const token = generateSessionToken();
 
@@ -74,6 +47,12 @@ describe(`Auth Route Tests`, () => {
 		await request(app)
 			.post(process.env.AUTH_NEO4J_USER_URI as string)
 			.set('Cookie', `token=${token}`)
+			.expect(401);
+	});
+
+	test(`${process.env.AUTH_NEO4J_USER_URI} should send 401 status without token cookie`, async () => {
+		await request(app)
+			.post(process.env.AUTH_NEO4J_USER_URI as string)
 			.expect(401);
 	});
 

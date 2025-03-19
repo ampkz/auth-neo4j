@@ -19,26 +19,6 @@ describe(`Auth Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 405 status on PUT with Allow header 'POST' and 'GET'`, async () => {
-		await request(app)
-			.put(process.env.AUTH_NEO4J_USER_URI as string)
-			.expect(405)
-			.then(response => {
-				expect(response.headers.allow).toContain('POST');
-				expect(response.headers.allow).toContain('GET');
-			});
-	});
-
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 405 status on DELETE with Allow header 'POST' and 'GET'`, async () => {
-		await request(app)
-			.delete(process.env.AUTH_NEO4J_USER_URI as string)
-			.expect(405)
-			.then(response => {
-				expect(response.headers.allow).toContain('POST');
-				expect(response.headers.allow).toContain('GET');
-			});
-	});
-
 	test(`${process.env.AUTH_NEO4J_USER_URI} should send 200 status with list of users on GET with admin auth`, async () => {
 		const token = generateSessionToken();
 

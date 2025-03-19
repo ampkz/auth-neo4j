@@ -11,4 +11,9 @@ router.put(`${process.env.AUTH_NEO4J_USER_URI as string}`, sendStatus405('GET', 
 router.delete(`${process.env.AUTH_NEO4J_USER_URI as string}`, sendStatus405('GET', 'POST'));
 router.post(`${process.env.AUTH_NEO4J_USER_URI as string}`, permitRoles(Auth.ADMIN), createUser);
 
+// router.get(`${process.env.AUTH_NEO4J_USER_URI as string}/:userId`, permitRoles(Auth.ADMIN), getUsers);
+// router.put(`${process.env.AUTH_NEO4J_USER_URI as string}/:userId`, sendStatus405('GET', 'POST'));
+// router.delete(`${process.env.AUTH_NEO4J_USER_URI as string}/:userId`, );
+router.post(`${process.env.AUTH_NEO4J_USER_URI as string}/:userId`, sendStatus405('GET', 'PUT', 'DELETE'));
+
 export default router;
