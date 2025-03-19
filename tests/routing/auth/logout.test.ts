@@ -6,7 +6,7 @@ import * as user from '../../../src/users/user';
 import * as crudSession from '../../../src/sessions/crud-session';
 import { Auth } from '../../../src/auth/auth';
 
-describe(`Auth Route Tests`, () => {
+describe(`Logout Route Tests`, () => {
 	let app: Express;
 
 	beforeAll(async () => {

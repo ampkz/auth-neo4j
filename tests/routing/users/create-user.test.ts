@@ -9,7 +9,7 @@ import { User } from '../../../src/users/user';
 import { faker } from '@faker-js/faker';
 import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 
-describe(`Auth Route Tests`, () => {
+describe(`Create User Route Tests`, () => {
 	let app: Express;
 
 	beforeAll(async () => {

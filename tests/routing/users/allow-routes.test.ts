@@ -3,7 +3,7 @@ import authNeo4j from '../../../src';
 import request from 'supertest';
 import { faker } from '@faker-js/faker';
 
-describe(`Auth Route Tests`, () => {
+describe(`405 Route Tests`, () => {
 	let app: Express;
 
 	beforeAll(async () => {
