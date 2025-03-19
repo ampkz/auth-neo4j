@@ -7,3 +7,7 @@ export enum Auth {
 export function isValidAuth(auth: Auth): boolean {
 	return Object.values(Auth).includes(auth);
 }
+
+export function isRoleEscalation(currentAuth: Auth, updatedAuth: Auth) {
+	return currentAuth === Auth.CONTRIBUTOR && updatedAuth === Auth.ADMIN;
+}
