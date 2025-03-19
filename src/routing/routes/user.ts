@@ -32,3 +32,7 @@ export async function createUser(req: Request, res: Response) {
 		return res.status(422).end();
 	}
 }
+
+export async function deleteUser(req: Request, res: Response) {
+	const { id } = req.params;
+}

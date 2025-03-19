@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Auth } from '../../src/auth/auth';
 import { UserUpdates, User } from '../../src/users/user';
-import { createUser, Errors as CRUDUserErrors, deleteUser, getAllUsers, getUserByEmail, updateUser } from '../../src/users/crud-user';
+import { createUser, Errors as CRUDUserErrors, deleteUser, getAllUsers, getUserById, updateUser } from '../../src/users/crud-user';
 import neo4j, { Driver } from 'neo4j-driver';
 
 describe(`CRUD User Test`, () => {
@@ -67,22 +67,22 @@ describe(`CRUD User Test`, () => {
 		expect(createdUser).toBeUndefined();
 	});
 
-	test(`getUserByEmail should return a created user`, async () => {
+	test(`getUserById should return a created user`, async () => {
 		const email: string = faker.internet.email();
 		const user: User | undefined = await createUser(new User({ email, auth: Auth.ADMIN }), faker.internet.password());
 
-		const matchedUser: User | undefined = await getUserByEmail(email);
+		const matchedUser: User | undefined = await getUserById(user?.id as string);
 
 		expect(matchedUser).toEqual(user);
 	});
 
-	test(`getUserByEmail should return undefined if no user was found`, async () => {
-		const matchedUser: User | undefined = await getUserByEmail(faker.internet.email());
+	test(`getUserById should return undefined if no user was found`, async () => {
+		const matchedUser: User | undefined = await getUserById(faker.database.mongodbObjectId());
 
 		expect(matchedUser).toBeUndefined();
 	});
 
-	test(`getUserByEmail should throw an error if there was a server error`, async () => {
+	test(`getUserById should throw an error if there was a server error`, async () => {
 		const getUserMock = {
 			run: jest.fn().mockRejectedValue(CRUDUserErrors.COULD_NOT_GET_USER),
 			close: jest.fn(),
@@ -97,7 +97,7 @@ describe(`CRUD User Test`, () => {
 		const driverSpy = jest.spyOn(neo4j, 'driver');
 		driverSpy.mockReturnValue(driverMock);
 
-		await expect(getUserByEmail(faker.internet.email())).rejects.toBeDefined();
+		await expect(getUserById(faker.database.mongodbObjectId())).rejects.toBeDefined();
 	});
 
 	test(`deleteUser should delete a created user`, async () => {
