@@ -1,6 +1,6 @@
 {
 	"name": "auth-neo4j",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "",
 	"homepage": "https://github.com/ampkz/auth-neo4j#readme",
 	"bugs": {
