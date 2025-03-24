@@ -1,34 +1,41 @@
-import { User } from '../../users/user';
-import { getAllUsers, createUser as dbCreateUser, deleteUser as dbDeleteUser, getUser as dbGetUser, updateUser as dbUpdateUser, } from '../../users/crud-user';
-import { FieldError, FieldErrors, RoutingErrors } from '../../errors/errors';
-import { isRoleEscalation, isValidAuth } from '../../auth/auth';
-export async function getUsers(req, res) {
-    const users = await getAllUsers();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getUsers = getUsers;
+exports.getUser = getUser;
+exports.createUser = createUser;
+exports.deleteUser = deleteUser;
+exports.updateUser = updateUser;
+const user_1 = require("../../users/user");
+const crud_user_1 = require("../../users/crud-user");
+const errors_1 = require("../../errors/errors");
+const auth_1 = require("../../auth/auth");
+async function getUsers(req, res) {
+    const users = await (0, crud_user_1.getAllUsers)();
     return res.status(200).json(users);
 }
-export async function getUser(req, res) {
+async function getUser(req, res) {
     const { id } = req.params;
-    const user = await dbGetUser(id);
+    const user = await (0, crud_user_1.getUser)(id);
     if (!user) {
         return res.status(404).end();
     }
     return res.status(200).json(user).end();
 }
-export async function createUser(req, res) {
+async function createUser(req, res) {
     const { email, auth, firstName, lastName, secondName, password } = req.body;
-    const required = new FieldErrors(RoutingErrors.INVALID_REQUEST);
+    const required = new errors_1.FieldErrors(errors_1.RoutingErrors.INVALID_REQUEST);
     if (!email)
-        required.addFieldError(new FieldError(`email`, FieldError.REQUIRED));
+        required.addFieldError(new errors_1.FieldError(`email`, errors_1.FieldError.REQUIRED));
     if (!auth)
-        required.addFieldError(new FieldError(`auth`, FieldError.REQUIRED));
+        required.addFieldError(new errors_1.FieldError(`auth`, errors_1.FieldError.REQUIRED));
     if (!password)
-        required.addFieldError(new FieldError(`password`, FieldError.REQUIRED));
-    if (!isValidAuth(auth))
-        required.addFieldError(new FieldError(`auth`, FieldError.INVALID_AUTH));
+        required.addFieldError(new errors_1.FieldError(`password`, errors_1.FieldError.REQUIRED));
+    if (!(0, auth_1.isValidAuth)(auth))
+        required.addFieldError(new errors_1.FieldError(`auth`, errors_1.FieldError.INVALID_AUTH));
     if (required.hasFieldErrors()) {
         return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
     }
-    const user = await dbCreateUser(new User({ email, auth, firstName, lastName, secondName }), password);
+    const user = await (0, crud_user_1.createUser)(new user_1.User({ email, auth, firstName, lastName, secondName }), password);
     if (user) {
         return res.set('Location', `/${user.id}`).status(201).json(user).end();
     }
@@ -36,9 +43,9 @@ export async function createUser(req, res) {
         return res.status(422).end();
     }
 }
-export async function deleteUser(req, res) {
+async function deleteUser(req, res) {
     const { id } = req.params;
-    const deletedUser = await dbDeleteUser(id);
+    const deletedUser = await (0, crud_user_1.deleteUser)(id);
     if (deletedUser) {
         return res.status(204).end();
     }
@@ -46,23 +53,23 @@ export async function deleteUser(req, res) {
         return res.status(422).end();
     }
 }
-export async function updateUser(req, res) {
+async function updateUser(req, res) {
     const { id } = req.params;
     const { updatedAuth, updatedEmail, updatedFirstName, updatedLastName, updatedSecondName, updatedPassword } = req.body;
-    const required = new FieldErrors(RoutingErrors.INVALID_REQUEST);
-    if (updatedAuth && !isValidAuth(updatedAuth))
-        required.addFieldError(new FieldError(`updatedAuth`, FieldError.INVALID_AUTH));
+    const required = new errors_1.FieldErrors(errors_1.RoutingErrors.INVALID_REQUEST);
+    if (updatedAuth && !(0, auth_1.isValidAuth)(updatedAuth))
+        required.addFieldError(new errors_1.FieldError(`updatedAuth`, errors_1.FieldError.INVALID_AUTH));
     if (required.hasFieldErrors()) {
         return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
     }
-    const user = await dbGetUser(id);
+    const user = await (0, crud_user_1.getUser)(id);
     if (!user) {
         return res.status(404).end();
     }
-    if (isRoleEscalation(user.auth, updatedAuth)) {
+    if ((0, auth_1.isRoleEscalation)(user.auth, updatedAuth)) {
         return res.status(403).end();
     }
-    const updatedUser = await dbUpdateUser(id, {
+    const updatedUser = await (0, crud_user_1.updateUser)(id, {
         updatedAuth,
         updatedEmail,
         updatedFirstName,

@@ -1,4 +1,7 @@
-export class CustomError extends Error {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FieldErrors = exports.FieldError = exports.RoutingErrors = exports.InternalError = exports.CustomError = void 0;
+class CustomError extends Error {
     _code;
     constructor(message, code, options) {
         super(message, options);
@@ -8,16 +11,18 @@ export class CustomError extends Error {
         return this._code;
     }
 }
-export class InternalError extends CustomError {
+exports.CustomError = CustomError;
+class InternalError extends CustomError {
     constructor(message, options) {
         super(message, 500, options);
     }
 }
-export var RoutingErrors;
+exports.InternalError = InternalError;
+var RoutingErrors;
 (function (RoutingErrors) {
     RoutingErrors["INVALID_REQUEST"] = "Invalid Request";
-})(RoutingErrors || (RoutingErrors = {}));
-export class FieldError {
+})(RoutingErrors || (exports.RoutingErrors = RoutingErrors = {}));
+class FieldError {
     static REQUIRED = 'Required';
     static INVALID_AUTH = 'Invalid Auth Type.';
     _field;
@@ -36,7 +41,8 @@ export class FieldError {
         return { field: this.getField(), message: this.getMessage() };
     }
 }
-export class FieldErrors extends CustomError {
+exports.FieldError = FieldError;
+class FieldErrors extends CustomError {
     _fieldErrors = [];
     constructor(message, options) {
         super(message, 400, options);
@@ -55,3 +61,4 @@ export class FieldErrors extends CustomError {
         return fields;
     }
 }
+exports.FieldErrors = FieldErrors;
