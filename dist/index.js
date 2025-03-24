@@ -1,12 +1,7 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const auth_1 = __importDefault(require("./routing/auth"));
-const user_1 = __importDefault(require("./routing/user"));
-const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const express_1 = __importDefault(require("express"));
+import authRouter from './routing/auth';
+import userRouter from './routing/user';
+import cookieParser from 'cookie-parser';
+import express from 'express';
 async function authNeo4j(config) {
     /* istanbul ignore next line */
     if (config) {
@@ -27,12 +22,12 @@ async function authNeo4j(config) {
     else if (!config && process.env.NODE_ENV !== 'test') {
         process.exit(9);
     }
-    const app = (0, express_1.default)();
-    app.use((0, cookie_parser_1.default)());
-    app.use(express_1.default.json());
-    app.use(express_1.default.urlencoded({ extended: true }));
-    app.use(auth_1.default);
-    app.use(user_1.default);
+    const app = express();
+    app.use(cookieParser());
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(authRouter);
+    app.use(userRouter);
     return app;
 }
-exports.default = authNeo4j;
+export default authNeo4j;
