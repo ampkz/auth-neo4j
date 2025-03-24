@@ -1,41 +1,5 @@
-"use strict";
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/index.ts
-var index_exports = {};
-__export(index_exports, {
-  default: () => index_default
-});
-module.exports = __toCommonJS(index_exports);
-
 // src/routing/auth.ts
-var import_express = require("express");
+import { Router } from "express";
 
 // src/middleware/statusCodes.ts
 function sendStatus401(res) {
@@ -103,11 +67,11 @@ var FieldErrors = class extends CustomError {
 };
 
 // src/db/connection.ts
-var import_neo4j_driver = __toESM(require("neo4j-driver"));
+import neo4j from "neo4j-driver";
 async function connect(username = process.env.AUTH_NEO4J_NEO4J_USER, password = process.env.AUTH_NEO4J_NEO4J_PWD) {
-  const driver = import_neo4j_driver.default.driver(
+  const driver = neo4j.driver(
     `bolt://${process.env.AUTH_NEO4J_NEO4J_HOST}:${process.env.AUTH_NEO4J_NEO4J_PORT}`,
-    import_neo4j_driver.default.auth.basic(username, password)
+    neo4j.auth.basic(username, password)
   );
   try {
     await driver.getServerInfo();
@@ -118,7 +82,7 @@ async function connect(username = process.env.AUTH_NEO4J_NEO4J_USER, password = 
 }
 
 // src/users/user.ts
-var bcrypt = __toESM(require("bcrypt"));
+import * as bcrypt from "bcrypt";
 var User = class {
   id;
   email;
@@ -153,12 +117,12 @@ async function checkPassword(email, password) {
 }
 
 // src/sessions/session.ts
-var import_node_crypto = __toESM(require("crypto"));
+import crypto from "node:crypto";
 function generateSessionToken(bytes = 32) {
-  return import_node_crypto.default.randomBytes(bytes).toString("hex");
+  return crypto.randomBytes(bytes).toString("hex");
 }
 function hashToken(token) {
-  return import_node_crypto.default.createHash("sha256").update(token).digest("hex");
+  return crypto.createHash("sha256").update(token).digest("hex");
 }
 
 // src/sessions/crud-session.ts
@@ -267,7 +231,7 @@ async function logout(req, res) {
 }
 
 // src/routing/auth.ts
-var router = (0, import_express.Router)();
+var router = Router();
 router.get(process.env.AUTH_NEO4J_LOGIN_URI, sendStatus405("POST"));
 router.put(process.env.AUTH_NEO4J_LOGIN_URI, sendStatus405("POST"));
 router.delete(process.env.AUTH_NEO4J_LOGIN_URI, sendStatus405("POST"));
@@ -279,7 +243,7 @@ router.post(process.env.AUTH_NEO4J_LOGOUT_URI, sendStatus405("GET"));
 var auth_default = router;
 
 // src/routing/user.ts
-var import_express2 = require("express");
+import { Router as Router2 } from "express";
 
 // src/auth/auth.ts
 var Auth = /* @__PURE__ */ ((Auth2) => {
@@ -314,7 +278,7 @@ function permitRoles(...rolesPermitted) {
 }
 
 // src/users/crud-user.ts
-var bcrypt2 = __toESM(require("bcrypt"));
+import * as bcrypt2 from "bcrypt";
 async function createUser(user, password) {
   const pwdHash = await bcrypt2.hash(password, parseInt(process.env.AUTH_NEO4J_SALT_ROUNDS));
   const driver = await connect();
@@ -491,7 +455,7 @@ async function updateUser2(req, res) {
 }
 
 // src/routing/user.ts
-var router2 = (0, import_express2.Router)();
+var router2 = Router2();
 router2.get(`${process.env.AUTH_NEO4J_USER_URI}`, permitRoles("ADMIN" /* ADMIN */), getUsers);
 router2.put(`${process.env.AUTH_NEO4J_USER_URI}`, sendStatus405("GET", "POST"));
 router2.delete(`${process.env.AUTH_NEO4J_USER_URI}`, sendStatus405("GET", "POST"));
@@ -503,8 +467,8 @@ router2.post(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, sendStatus405("GET", 
 var user_default = router2;
 
 // src/index.ts
-var import_cookie_parser = __toESM(require("cookie-parser"));
-var import_express3 = __toESM(require("express"));
+import cookieParser from "cookie-parser";
+import express from "express";
 async function authNeo4j(config) {
   if (config) {
     process.env.AUTH_NEO4J_SALT_ROUNDS = config.saltRounds;
@@ -523,13 +487,16 @@ async function authNeo4j(config) {
   } else if (!config && process.env.NODE_ENV !== "test") {
     process.exit(9);
   }
-  const app = (0, import_express3.default)();
-  app.use((0, import_cookie_parser.default)());
-  app.use(import_express3.default.json());
-  app.use(import_express3.default.urlencoded({ extended: true }));
+  const app = express();
+  app.use(cookieParser());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   app.use(auth_default);
   app.use(user_default);
   return app;
 }
 var index_default = authNeo4j;
-//# sourceMappingURL=index.js.map
+export {
+  index_default as default
+};
+//# sourceMappingURL=index.mjs.map

@@ -108,5 +108,5 @@
 		// "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
 		"skipLibCheck": true /* Skip type checking all .d.ts files. */
 	},
-	"exclude": ["./dist", "./jestGlobalConfigs", "jest.config.ts", "**/tests"]
+	"exclude": ["tsup.config.ts", "./dist", "./jestGlobalConfigs", "jest.config.ts", "**/tests"]
 }
