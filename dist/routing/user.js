@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const statusCodes_1 = require("../middleware/statusCodes");
+const permitRoles_1 = require("../middleware/permitRoles");
+const auth_1 = require("../auth/auth");
+const user_1 = require("./routes/user");
+const router = (0, express_1.Router)();
+router.get(`${process.env.AUTH_NEO4J_USER_URI}`, (0, permitRoles_1.permitRoles)(auth_1.Auth.ADMIN), user_1.getUsers);
+router.put(`${process.env.AUTH_NEO4J_USER_URI}`, (0, statusCodes_1.sendStatus405)('GET', 'POST'));
+router.delete(`${process.env.AUTH_NEO4J_USER_URI}`, (0, statusCodes_1.sendStatus405)('GET', 'POST'));
+router.post(`${process.env.AUTH_NEO4J_USER_URI}`, (0, permitRoles_1.permitRoles)(auth_1.Auth.ADMIN), user_1.createUser);
+router.get(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, (0, permitRoles_1.permitRoles)(auth_1.Auth.ADMIN, auth_1.Auth.SELF), user_1.getUser);
+router.put(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, (0, permitRoles_1.permitRoles)(auth_1.Auth.ADMIN, auth_1.Auth.SELF), user_1.updateUser);
+router.delete(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, (0, permitRoles_1.permitRoles)(auth_1.Auth.ADMIN, auth_1.Auth.SELF), user_1.deleteUser);
+router.post(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, (0, statusCodes_1.sendStatus405)('GET', 'PUT', 'DELETE'));
+exports.default = router;

@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const statusCodes_1 = require("../middleware/statusCodes");
+const auth_1 = require("./routes/auth");
+const router = (0, express_1.Router)();
+router.get(process.env.AUTH_NEO4J_LOGIN_URI, (0, statusCodes_1.sendStatus405)('POST'));
+router.put(process.env.AUTH_NEO4J_LOGIN_URI, (0, statusCodes_1.sendStatus405)('POST'));
+router.delete(process.env.AUTH_NEO4J_LOGIN_URI, (0, statusCodes_1.sendStatus405)('POST'));
+router.post(process.env.AUTH_NEO4J_LOGIN_URI, auth_1.login);
+router.get(process.env.AUTH_NEO4J_LOGOUT_URI, auth_1.logout);
+router.put(process.env.AUTH_NEO4J_LOGOUT_URI, (0, statusCodes_1.sendStatus405)('GET'));
+router.delete(process.env.AUTH_NEO4J_LOGOUT_URI, (0, statusCodes_1.sendStatus405)('GET'));
+router.post(process.env.AUTH_NEO4J_LOGOUT_URI, (0, statusCodes_1.sendStatus405)('GET'));
+exports.default = router;
