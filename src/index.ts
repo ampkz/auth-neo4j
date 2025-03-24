@@ -4,37 +4,37 @@ import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 
 export type AuthNeo4jConfig = {
-	SALT_ROUNDS: string;
-	TOKEN_SECRET: string;
-	TOKEN_EXPIRATION: string;
-	COOKIE_EXPIRATION: string;
-	AUTH_REALM: string;
-	LOGIN_URI: string;
-	LOGOUT_URI: string;
-	USER_URI: string;
-	NEO4J_HOST: string;
-	NEO4J_PORT: string;
-	NEO4J_USER: string;
-	NEO4J_PWD: string;
-	USERS_DB: string;
+	saltRounds: string;
+	tokenSecret: string;
+	tokenExpiration: string;
+	cookieExpiration: string;
+	authRealm: string;
+	loginURI: string;
+	logoutURI: string;
+	userURI: string;
+	neo4jHost: string;
+	noe4jPort: string;
+	neo4jUser: string;
+	neo4jPwd: string;
+	usersDB: string;
 };
 
 async function authNeo4j(config?: AuthNeo4jConfig) {
 	/* istanbul ignore next line */
 	if (config) {
-		process.env.AUTH_NEO4J_SALT_ROUNDS = config.SALT_ROUNDS;
-		process.env.AUTH_NEO4J_TOKEN_SECRET = config.TOKEN_SECRET;
-		process.env.AUTH_NEO4J_TOKEN_EXPIRATION = config.TOKEN_EXPIRATION;
-		process.env.AUTH_NEO4J_COOKIE_EXPIRATION = config.COOKIE_EXPIRATION;
-		process.env.AUTH_NEO4J_AUTH_REALM = config.AUTH_REALM;
-		process.env.AUTH_NEO4J_LOGIN_URI = config.LOGIN_URI;
-		process.env.AUTH_NEO4J_LOGOUT_URI = config.LOGOUT_URI;
-		process.env.AUTH_NEO4J_USER_URI = config.USER_URI;
-		process.env.AUTH_NEO4J_NEO4J_HOST = config.NEO4J_HOST;
-		process.env.AUTH_NEO4J_NEO4J_PORT = config.NEO4J_PORT;
-		process.env.AUTH_NEO4J_NEO4J_USER = config.NEO4J_USER;
-		process.env.AUTH_NEO4J_NEO4J_PWD = config.NEO4J_PWD;
-		process.env.AUTH_NEO4J_USERS_DB = config.USERS_DB;
+		process.env.AUTH_NEO4J_SALT_ROUNDS = config.saltRounds;
+		process.env.AUTH_NEO4J_TOKEN_SECRET = config.tokenSecret;
+		process.env.AUTH_NEO4J_TOKEN_EXPIRATION = config.tokenExpiration;
+		process.env.AUTH_NEO4J_COOKIE_EXPIRATION = config.cookieExpiration;
+		process.env.AUTH_NEO4J_AUTH_REALM = config.authRealm;
+		process.env.AUTH_NEO4J_LOGIN_URI = config.loginURI;
+		process.env.AUTH_NEO4J_LOGOUT_URI = config.logoutURI;
+		process.env.AUTH_NEO4J_USER_URI = config.userURI;
+		process.env.AUTH_NEO4J_NEO4J_HOST = config.neo4jHost;
+		process.env.AUTH_NEO4J_NEO4J_PORT = config.noe4jPort;
+		process.env.AUTH_NEO4J_NEO4J_USER = config.neo4jUser;
+		process.env.AUTH_NEO4J_NEO4J_PWD = config.neo4jPwd;
+		process.env.AUTH_NEO4J_USERS_DB = config.usersDB;
 	} else if (!config && process.env.NODE_ENV !== 'test') {
 		process.exit(9);
 	}
