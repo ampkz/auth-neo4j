@@ -267,16 +267,18 @@ async function logout(req, res) {
 }
 
 // src/routing/auth.ts
-var router = (0, import_express.Router)();
-router.get(process.env.AUTH_NEO4J_LOGIN_URI, sendStatus405("POST"));
-router.put(process.env.AUTH_NEO4J_LOGIN_URI, sendStatus405("POST"));
-router.delete(process.env.AUTH_NEO4J_LOGIN_URI, sendStatus405("POST"));
-router.post(process.env.AUTH_NEO4J_LOGIN_URI, login);
-router.get(process.env.AUTH_NEO4J_LOGOUT_URI, logout);
-router.put(process.env.AUTH_NEO4J_LOGOUT_URI, sendStatus405("GET"));
-router.delete(process.env.AUTH_NEO4J_LOGOUT_URI, sendStatus405("GET"));
-router.post(process.env.AUTH_NEO4J_LOGOUT_URI, sendStatus405("GET"));
-var auth_default = router;
+function authRouter(loginURI, logoutURI) {
+  const router = (0, import_express.Router)();
+  router.get(loginURI, sendStatus405("POST"));
+  router.put(loginURI, sendStatus405("POST"));
+  router.delete(loginURI, sendStatus405("POST"));
+  router.post(loginURI, login);
+  router.get(logoutURI, logout);
+  router.put(logoutURI, sendStatus405("GET"));
+  router.delete(logoutURI, sendStatus405("GET"));
+  router.post(logoutURI, sendStatus405("GET"));
+  return router;
+}
 
 // src/routing/user.ts
 var import_express2 = require("express");
@@ -491,16 +493,18 @@ async function updateUser2(req, res) {
 }
 
 // src/routing/user.ts
-var router2 = (0, import_express2.Router)();
-router2.get(`${process.env.AUTH_NEO4J_USER_URI}`, permitRoles("ADMIN" /* ADMIN */), getUsers);
-router2.put(`${process.env.AUTH_NEO4J_USER_URI}`, sendStatus405("GET", "POST"));
-router2.delete(`${process.env.AUTH_NEO4J_USER_URI}`, sendStatus405("GET", "POST"));
-router2.post(`${process.env.AUTH_NEO4J_USER_URI}`, permitRoles("ADMIN" /* ADMIN */), createUser2);
-router2.get(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, permitRoles("ADMIN" /* ADMIN */, "SELF" /* SELF */), getUser2);
-router2.put(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, permitRoles("ADMIN" /* ADMIN */, "SELF" /* SELF */), updateUser2);
-router2.delete(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, permitRoles("ADMIN" /* ADMIN */, "SELF" /* SELF */), deleteUser2);
-router2.post(`${process.env.AUTH_NEO4J_USER_URI}/:userId`, sendStatus405("GET", "PUT", "DELETE"));
-var user_default = router2;
+function userRouter(userURI) {
+  const router = (0, import_express2.Router)();
+  router.get(userURI, permitRoles("ADMIN" /* ADMIN */), getUsers);
+  router.put(userURI, sendStatus405("GET", "POST"));
+  router.delete(userURI, sendStatus405("GET", "POST"));
+  router.post(userURI, permitRoles("ADMIN" /* ADMIN */), createUser2);
+  router.get(`${userURI}/:userId`, permitRoles("ADMIN" /* ADMIN */, "SELF" /* SELF */), getUser2);
+  router.put(`${userURI}/:userId`, permitRoles("ADMIN" /* ADMIN */, "SELF" /* SELF */), updateUser2);
+  router.delete(`${userURI}/:userId`, permitRoles("ADMIN" /* ADMIN */, "SELF" /* SELF */), deleteUser2);
+  router.post(`${userURI}/:userId`, sendStatus405("GET", "PUT", "DELETE"));
+  return router;
+}
 
 // src/index.ts
 var import_cookie_parser = __toESM(require("cookie-parser"));
@@ -527,8 +531,8 @@ function authNeo4j(config) {
   app.use((0, import_cookie_parser.default)());
   app.use(import_express3.default.json());
   app.use(import_express3.default.urlencoded({ extended: true }));
-  app.use(auth_default);
-  app.use(user_default);
+  app.use(authRouter(process.env.AUTH_NEO4J_LOGIN_URI, process.env.AUTH_NEO4J_LOGOUT_URI));
+  app.use(userRouter(process.env.AUTH_NEO4J_USER_URI));
   return app;
 }
 var index_default = authNeo4j;

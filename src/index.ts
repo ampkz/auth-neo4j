@@ -45,8 +45,8 @@ function authNeo4j(config?: AuthNeo4jConfig) {
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: true }));
 
-	app.use(authRouter);
-	app.use(userRouter);
+	app.use(authRouter(process.env.AUTH_NEO4J_LOGIN_URI as string, process.env.AUTH_NEO4J_LOGOUT_URI as string));
+	app.use(userRouter(process.env.AUTH_NEO4J_USER_URI as string));
 
 	return app;
 }
