@@ -469,7 +469,7 @@ var user_default = router2;
 // src/index.ts
 import cookieParser from "cookie-parser";
 import express from "express";
-async function authNeo4j(config) {
+function authNeo4j(config) {
   if (config) {
     process.env.AUTH_NEO4J_SALT_ROUNDS = config.saltRounds;
     process.env.AUTH_NEO4J_TOKEN_SECRET = config.tokenSecret;

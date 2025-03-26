@@ -19,7 +19,7 @@ export type AuthNeo4jConfig = {
 	usersDB: string;
 };
 
-async function authNeo4j(config?: AuthNeo4jConfig) {
+function authNeo4j(config?: AuthNeo4jConfig) {
 	/* istanbul ignore next line */
 	if (config) {
 		process.env.AUTH_NEO4J_SALT_ROUNDS = config.saltRounds;

@@ -15,6 +15,6 @@ type AuthNeo4jConfig = {
     neo4jPwd: string;
     usersDB: string;
 };
-declare function authNeo4j(config?: AuthNeo4jConfig): Promise<express.Express>;
+declare function authNeo4j(config?: AuthNeo4jConfig): express.Express;
 
 export { type AuthNeo4jConfig, authNeo4j as default };
