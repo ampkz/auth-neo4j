@@ -4,8 +4,7 @@ dotenv.config();
 
 export default class Config {
 	static SALT_ROUNDS: number = parseInt(process.env.SALT_ROUNDS as string);
-	static TOKEN_SECRET: string = process.env.TOKEN_SECRET as string;
-	static TOKEN_EXPIRATION: number = parseInt(process.env.TOKEN_EXPIRATION as string);
+	static SESSION_EXPIRATION: number = parseInt(process.env.SESSION_EXPIRATION as string);
 	static COOKIE_EXPIRATION: number = parseInt(process.env.COOKIE_EXPIRATION as string);
 	static AUTH_REALM: string = process.env.AUTH_REALM as string;
 	static LOGIN_URI: string = process.env.LOGIN_URI as string;

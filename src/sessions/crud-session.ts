@@ -17,7 +17,7 @@ export enum Errors {
 export async function createSession(token: string, email: string): Promise<Session | undefined> {
 	const sessionId: string = hashToken(token);
 	const expiresAt: Date = new Date();
-	expiresAt.setDate(expiresAt.getDate() + Config.TOKEN_EXPIRATION);
+	expiresAt.setDate(expiresAt.getDate() + Config.SESSION_EXPIRATION);
 
 	const driver: Driver = await connect();
 	const neoSession: NeoSession = driver.session({ database: Config.USERS_DB });
