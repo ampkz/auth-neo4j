@@ -15,5 +15,6 @@ export default class Config {
 	static NEO4J_PORT: string = process.env.NEO4J_PORT as string;
 	static NEO4J_USER: string = process.env.NEO4J_USER as string;
 	static NEO4J_PWD: string = process.env.NEO4J_PWD as string;
-	static USERS_DB: string = process.env.USERS_DB as string;
+	/* istanbul ignore next line */
+	static USERS_DB: string = `${process.env.USERS_DB as string}${process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ``}`;
 }
