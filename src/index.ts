@@ -5,7 +5,7 @@ import express, { Express } from 'express';
 
 import Config from './config/config';
 
-function authNeo4j() {
+export function authNeo4j() {
 	const app: Express = express();
 
 	app.use(cookieParser());
