@@ -2,6 +2,60 @@
 
 Simple Express middleware for session and user management using Neo4j.
 
+## Setup
+
+Create (or modify) a `.env` file in your project's root directory with the following keys (see [below](#env-keys) for an explanation of the keys and the supplied default values):
+
+```
+SALT_ROUNDS=10
+SESSION_EXPIRATION=15
+COOKIE_EXPIRATION=1296000
+AUTH_REALM=CHANGE_ME
+LOGIN_URI=/login
+LOGOUT_URI=/logout
+USER_URI=/user
+NEO4J_HOST=localhost
+NEO4J_PORT=7687
+NEO4J_USER=neo4j
+NEO4J_PWD=CHANGE_ME
+USERS_DB=users.authneo4j
+```
+
+Make sure your `.gitignore` file includes your `.env` file.
+
+## Example TypeScript Project
+
+```js
+import authNeo4j from "@ampkz/auth-neo4j";
+import express from "express";
+
+const app = express();
+const port = 3000;
+
+app.use(authNeo4j());
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port});
+});
+
+```
+
+## Example CommonJS Project
+
+```js
+const { authNeo4j } = require('auth-neo4j');
+const express = require('express');
+
+const app = express();
+const port = 3000;
+
+app.use(authNeo4j());
+
+app.listen(port, () => {
+	console.log(`Example app listening on port ${port}`);
+});
+```
+
 ## Server Requirements
 
 ### Neo4j
@@ -75,75 +129,75 @@ Follow the instructions below to install Neo4j on Ubuntu 24.04, being sure to in
 
     If unsuccessful, make sure `/etc/neo4j` and `/var/lib/neo4j` are owned by `neo4j:adm`.
 
-### .env keys
+## .env keys
 
-```bash
+```
 SALT_ROUNDS=10
 ```
 
 Salt value passed to bcrypt's hashing function. The default value is 10.
 
-```bash
+```
 SESSION_EXPIRATION=15
 ```
 
 The number of days before the session expires. The default is 15 days.
 
-```bash
+```
 COOKIE_EXPIRATION=1296000
 ```
 
 The number of seconds before the cookie expires. The default is 1296000 (15 days).
 
-```bash
+```
 AUTH_REALM=CHANGE_ME
 ```
 
 The [realm](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/WWW-Authenticate#realm) set on HTTP 401 Unauthorized errors. This value should be changed appropriately.
 
-```bash
+```
 LOGIN_URI=/login
 ```
 
 The URI pointing to the login enpoint for the API. The default is `/login`.
 
-```bash
+```
 LOGOUT_URI=/logout
 ```
 
 The URI pointing to the logout endpoint for the API. The default is `/logout`.
 
-```bash
+```
 USER_URI=/user
 ```
 
 The URI pointing to the user management endpoint for the API. The default is `/user`.
 
-```bash
+```
 NEO4J_HOST=localhost
 ```
 
 The host value for the Neo4j database. The default value is `localhost`.
 
-```bash
+```
 NEO4J_PORT=7687
 ```
 
 The port value for the Neo4j database. The default value is `7687`.
 
-```bash
+```
 NEO4J_USER=neo4j
 ```
 
 The username for the Neo4j database. The default value is `neo4j`.
 
-```bash
+```
 NEO4J_PWD=CHANGE_ME
 ```
 
 The password for the Neo4j database. This value should be changed appropriately.
 
-```bash
+```
 USERS_DB=users.authneo4j
 ```
 
