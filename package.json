@@ -1,7 +1,7 @@
 {
 	"name": "auth-neo4j",
 	"version": "0.3.0",
-	"description": "",
+	"description": "Simple Express middleware for session and user management using Neo4j.",
 	"homepage": "https://github.com/ampkz/auth-neo4j#readme",
 	"bugs": {
 		"url": "https://github.com/ampkz/auth-neo4j/issues"
