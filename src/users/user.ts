@@ -3,6 +3,8 @@ import { Auth } from '../auth/auth';
 import { connect } from '../db/connection';
 import * as bcrypt from 'bcrypt';
 
+import Config from '../config/config';
+
 export interface IUser {
 	id?: string;
 	email: string;
@@ -41,7 +43,7 @@ export class User implements IUser {
 
 export async function checkPassword(email: string, password: string): Promise<User | undefined> {
 	const driver: Driver = await connect();
-	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const session: Session = driver.session({ database: Config.USERS_DB });
 
 	let user: User | undefined = undefined;
 

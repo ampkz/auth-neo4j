@@ -2,6 +2,8 @@ import { connect } from './connection';
 import { Driver, Session, RecordShape, Record } from 'neo4j-driver';
 import { InternalError } from '../errors/errors';
 
+import Config from '../config/config';
+
 export enum ErrorMsgs {
 	COULD_NOT_CREATE_DB = 'Could Not Create Database',
 	COULD_NOT_CREATE_CONSTRAINT = 'Could Not Create Constraint',
@@ -12,9 +14,9 @@ export async function initializeDB(): Promise<boolean> {
 	const driver: Driver = await connect();
 	let session: Session = driver.session();
 
-	const match: RecordShape = await session.run(`CREATE DATABASE ${process.env.AUTH_NEO4J_USERS_DB} IF NOT EXISTS WAIT`);
+	const match: RecordShape = await session.run(`CREATE DATABASE ${Config.USERS_DB} IF NOT EXISTS WAIT`);
 
-	if ((match.records[0] as Record).get(`address`) != `${process.env.AUTH_NEO4J_NEO4J_HOST}:${process.env.AUTH_NEO4J_NEO4J_PORT}`) {
+	if ((match.records[0] as Record).get(`address`) != `${Config.NEO4J_HOST}:${Config.NEO4J_PORT}`) {
 		await session.close();
 		await driver.close();
 		throw new InternalError(ErrorMsgs.COULD_NOT_CREATE_DB);
@@ -22,7 +24,7 @@ export async function initializeDB(): Promise<boolean> {
 
 	await session.close();
 
-	session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB as string });
+	session = driver.session({ database: Config.USERS_DB });
 
 	try {
 		await initializeConstraint(session, 'User', 'email');
@@ -63,7 +65,7 @@ async function initializeConstraint(session: Session, identifier: string, proper
 export async function destroyDB(): Promise<boolean> {
 	const driver: Driver = await connect();
 	const session: Session = driver.session();
-	await session.run(`DROP DATABASE ${process.env.AUTH_NEO4J_USERS_DB} IF EXISTS DESTROY DATA WAIT`);
+	await session.run(`DROP DATABASE ${Config.USERS_DB} IF EXISTS DESTROY DATA WAIT`);
 	await session.close();
 	await driver.close();
 

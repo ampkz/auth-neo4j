@@ -9,6 +9,8 @@ import { User } from '../../../src/users/user';
 import { faker } from '@faker-js/faker';
 import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 
+import Config from '../../../src/config/config';
+
 describe(`Create User Route Tests`, () => {
 	let app: Express;
 
@@ -20,7 +22,7 @@ describe(`Create User Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 403 status if the session couldn't be validated`, async () => {
+	test(`${Config.USER_URI} should send 403 status if the session couldn't be validated`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -29,13 +31,10 @@ describe(`Create User Route Tests`, () => {
 			user: null,
 		});
 
-		await request(app)
-			.post(process.env.AUTH_NEO4J_USER_URI as string)
-			.set('Cookie', `token=${token}`)
-			.expect(403);
+		await request(app).post(Config.USER_URI).set('Cookie', `token=${token}`).expect(403);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 401 status with contributor auth`, async () => {
+	test(`${Config.USER_URI} should send 401 status with contributor auth`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -44,19 +43,14 @@ describe(`Create User Route Tests`, () => {
 			user: { id: '', email: '', auth: Auth.CONTRIBUTOR },
 		});
 
-		await request(app)
-			.post(process.env.AUTH_NEO4J_USER_URI as string)
-			.set('Cookie', `token=${token}`)
-			.expect(401);
+		await request(app).post(Config.USER_URI).set('Cookie', `token=${token}`).expect(401);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 401 status without token cookie`, async () => {
-		await request(app)
-			.post(process.env.AUTH_NEO4J_USER_URI as string)
-			.expect(401);
+	test(`${Config.USER_URI} should send 401 status without token cookie`, async () => {
+		await request(app).post(Config.USER_URI).expect(401);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 400 status on POST without email, auth, or password`, async () => {
+	test(`${Config.USER_URI} should send 400 status on POST without email, auth, or password`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -66,7 +60,7 @@ describe(`Create User Route Tests`, () => {
 		});
 
 		await request(app)
-			.post(process.env.AUTH_NEO4J_USER_URI as string)
+			.post(Config.USER_URI)
 			.set('Cookie', `token=${token}`)
 			.send({})
 			.expect(400)
@@ -78,7 +72,7 @@ describe(`Create User Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 400 status with invalid auth type`, async () => {
+	test(`${Config.USER_URI} should send 400 status with invalid auth type`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -88,7 +82,7 @@ describe(`Create User Route Tests`, () => {
 		});
 
 		await request(app)
-			.post(process.env.AUTH_NEO4J_USER_URI as string)
+			.post(Config.USER_URI)
 			.set('Cookie', `token=${token}`)
 			.send({ email: faker.internet.email(), auth: 'not auth', password: faker.internet.password() })
 			.expect(400)
@@ -98,7 +92,7 @@ describe(`Create User Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 422 status if no user was created`, async () => {
+	test(`${Config.USER_URI} should send 422 status if no user was created`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -111,13 +105,13 @@ describe(`Create User Route Tests`, () => {
 		createUserSpy.mockResolvedValue(undefined);
 
 		await request(app)
-			.post(process.env.AUTH_NEO4J_USER_URI as string)
+			.post(Config.USER_URI)
 			.set('Cookie', `token=${token}`)
 			.send({ email: faker.internet.email(), auth: Auth.ADMIN, password: faker.internet.password() })
 			.expect(422);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 201 status with created user`, async () => {
+	test(`${Config.USER_URI} should send 201 status with created user`, async () => {
 		const token = generateSessionToken(),
 			email = faker.internet.email(),
 			id = faker.database.mongodbObjectId(),
@@ -138,7 +132,7 @@ describe(`Create User Route Tests`, () => {
 		createUserSpy.mockResolvedValue(user);
 
 		await request(app)
-			.post(process.env.AUTH_NEO4J_USER_URI as string)
+			.post(Config.USER_URI)
 			.set('Cookie', `token=${token}`)
 			.send({ email, auth, password: faker.internet.password() })
 			.expect(201)

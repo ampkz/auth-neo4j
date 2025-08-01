@@ -8,6 +8,8 @@ import { Auth } from '../../../src/auth/auth';
 import { User } from '../../../src/users/user';
 import { faker } from '@faker-js/faker';
 
+import Config from '../../../src/config/config';
+
 describe(`Delete User Route Tests`, () => {
 	let app: Express;
 
@@ -19,7 +21,7 @@ describe(`Delete User Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 403 status if the session couldn't be validated`, async () => {
+	test(`${Config.USER_URI}/:userId should send 403 status if the session couldn't be validated`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -28,17 +30,14 @@ describe(`Delete User Route Tests`, () => {
 			user: null,
 		});
 
-		await request(app)
-			.delete(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`)
-			.set('Cookie', `token=${token}`)
-			.expect(403);
+		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 401 status without token cookie`, async () => {
-		await request(app).delete(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
+	test(`${Config.USER_URI}/:userId should send 401 status without token cookie`, async () => {
+		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 422 status if no user was deleted`, async () => {
+	test(`${Config.USER_URI}/:userId should send 422 status if no user was deleted`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -50,13 +49,10 @@ describe(`Delete User Route Tests`, () => {
 		const deleteUserSpy = jest.spyOn(crudUser, 'deleteUser');
 		deleteUserSpy.mockResolvedValue(undefined);
 
-		await request(app)
-			.delete(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`)
-			.set('Cookie', `token=${token}`)
-			.expect(422);
+		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(422);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 401 status as contributor`, async () => {
+	test(`${Config.USER_URI}/:userId should send 401 status as contributor`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -65,13 +61,10 @@ describe(`Delete User Route Tests`, () => {
 			user: { id: '', email: '', auth: Auth.CONTRIBUTOR },
 		});
 
-		await request(app)
-			.delete(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`)
-			.set('Cookie', `token=${token}`)
-			.expect(401);
+		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 204 status if user was deleted as admin`, async () => {
+	test(`${Config.USER_URI}/:userId should send 204 status if user was deleted as admin`, async () => {
 		const token = generateSessionToken(),
 			email = faker.internet.email(),
 			id = faker.database.mongodbObjectId(),
@@ -91,10 +84,10 @@ describe(`Delete User Route Tests`, () => {
 		const deleteUserSpy = jest.spyOn(crudUser, 'deleteUser');
 		deleteUserSpy.mockResolvedValue(user);
 
-		await request(app).delete(`${process.env.AUTH_NEO4J_USER_URI}/${user.id}`).set('Cookie', `token=${token}`).expect(204);
+		await request(app).delete(`${Config.USER_URI}/${user.id}`).set('Cookie', `token=${token}`).expect(204);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 204 status if user was deleted as self contributor`, async () => {
+	test(`${Config.USER_URI}/:userId should send 204 status if user was deleted as self contributor`, async () => {
 		const token = generateSessionToken(),
 			id = faker.database.mongodbObjectId();
 
@@ -107,6 +100,6 @@ describe(`Delete User Route Tests`, () => {
 		const deleteUserSpy = jest.spyOn(crudUser, 'deleteUser');
 		deleteUserSpy.mockResolvedValue(new User({ email: faker.internet.email(), id, auth: Auth.CONTRIBUTOR }));
 
-		await request(app).delete(`${process.env.AUTH_NEO4J_USER_URI}/${id}`).set('Cookie', `token=${token}`).expect(204);
+		await request(app).delete(`${Config.USER_URI}/${id}`).set('Cookie', `token=${token}`).expect(204);
 	});
 });

@@ -3,6 +3,8 @@ import authNeo4j from '../../../src';
 import request from 'supertest';
 import { faker } from '@faker-js/faker';
 
+import Config from '../../../src/config/config';
+
 describe(`405 Route Tests`, () => {
 	let app: Express;
 
@@ -14,9 +16,9 @@ describe(`405 Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 405 status on PUT with Allow header 'POST' and 'GET'`, async () => {
+	test(`${Config.USER_URI} should send 405 status on PUT with Allow header 'POST' and 'GET'`, async () => {
 		await request(app)
-			.put(process.env.AUTH_NEO4J_USER_URI as string)
+			.put(Config.USER_URI)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toContain('POST');
@@ -24,9 +26,9 @@ describe(`405 Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 405 status on DELETE with Allow header 'POST' and 'GET'`, async () => {
+	test(`${Config.USER_URI} should send 405 status on DELETE with Allow header 'POST' and 'GET'`, async () => {
 		await request(app)
-			.delete(process.env.AUTH_NEO4J_USER_URI as string)
+			.delete(Config.USER_URI)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toContain('POST');
@@ -34,9 +36,9 @@ describe(`405 Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 405 status on POST with Allow header 'GET', 'DELETE', and 'PUT'`, async () => {
+	test(`${Config.USER_URI}/:userId should send 405 status on POST with Allow header 'GET', 'DELETE', and 'PUT'`, async () => {
 		await request(app)
-			.post(`${process.env.AUTH_NEO4J_USER_URI as string}/${faker.database.mongodbObjectId()}`)
+			.post(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toContain('GET');

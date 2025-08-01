@@ -5,6 +5,8 @@ import { sendStatus401 } from '../../middleware/statusCodes';
 import { generateSessionToken, SessionValidationResult } from '../../sessions/session';
 import { createSession, invalidateSession, validateSessionToken } from '../../sessions/crud-session';
 
+import Config from '../../config/config';
+
 export async function login(req: Request, res: Response) {
 	const { email, password } = req.body;
 
@@ -27,10 +29,7 @@ export async function login(req: Request, res: Response) {
 
 	await createSession(token, email);
 
-	return res
-		.status(204)
-		.cookie(`token`, token, { httpOnly: true, maxAge: parseInt(process.env.AUTH_NEO4J_COOKIE_EXPIRATION as string), sameSite: 'strict' })
-		.end();
+	return res.status(204).cookie(`token`, token, { httpOnly: true, maxAge: Config.COOKIE_EXPIRATION, sameSite: 'strict' }).end();
 }
 
 export async function logout(req: Request, res: Response) {

@@ -7,6 +7,8 @@ import * as user from '../../../src/users/user';
 import * as crudSession from '../../../src/sessions/crud-session';
 import { Auth } from '../../../src/auth/auth';
 
+import Config from '../../../src/config/config';
+
 describe(`Login Route Tests`, () => {
 	let app: Express;
 
@@ -18,36 +20,36 @@ describe(`Login Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGIN_URI} should send 405 status on PUT with Allow header 'POST'`, async () => {
+	test(`${Config.LOGIN_URI} should send 405 status on PUT with Allow header 'POST'`, async () => {
 		await request(app)
-			.put(process.env.AUTH_NEO4J_LOGIN_URI as string)
+			.put(Config.LOGIN_URI)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toBe('POST');
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGIN_URI} should send 405 status on GET with Allow header 'POST'`, async () => {
+	test(`${Config.LOGIN_URI} should send 405 status on GET with Allow header 'POST'`, async () => {
 		await request(app)
-			.get(process.env.AUTH_NEO4J_LOGIN_URI as string)
+			.get(Config.LOGIN_URI)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toBe('POST');
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGIN_URI} should send 405 status on DELETE with Allow header 'POST'`, async () => {
+	test(`${Config.LOGIN_URI} should send 405 status on DELETE with Allow header 'POST'`, async () => {
 		await request(app)
-			.delete(process.env.AUTH_NEO4J_LOGIN_URI as string)
+			.delete(Config.LOGIN_URI)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toBe('POST');
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGIN_URI} should send 400 status on POST without password`, async () => {
+	test(`${Config.LOGIN_URI} should send 400 status on POST without password`, async () => {
 		await request(app)
-			.post(process.env.AUTH_NEO4J_LOGIN_URI as string)
+			.post(Config.LOGIN_URI)
 			.send({ email: faker.internet.email() })
 			.expect(400)
 			.then(response => {
@@ -56,9 +58,9 @@ describe(`Login Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGIN_URI} should send 400 status on POST without email`, async () => {
+	test(`${Config.LOGIN_URI} should send 400 status on POST without email`, async () => {
 		await request(app)
-			.post(process.env.AUTH_NEO4J_LOGIN_URI as string)
+			.post(Config.LOGIN_URI)
 			.send({ password: faker.internet.password() })
 			.expect(400)
 			.then(response => {
@@ -67,20 +69,20 @@ describe(`Login Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGIN_URI} should send 401 status with incorrect password`, async () => {
+	test(`${Config.LOGIN_URI} should send 401 status with incorrect password`, async () => {
 		const checkPasswordSpy = jest.spyOn(user, 'checkPassword');
 		checkPasswordSpy.mockResolvedValueOnce(undefined);
 
 		await request(app)
-			.post(process.env.AUTH_NEO4J_LOGIN_URI as string)
+			.post(Config.LOGIN_URI)
 			.send({ email: faker.internet.email(), password: faker.internet.password() })
 			.expect(401)
 			.then(response => {
-				expect(response.headers['www-authenticate']).toBe(`xBasic realm="${process.env.AUTH_NEO4J_AUTH_REALM}"`);
+				expect(response.headers['www-authenticate']).toBe(`xBasic realm="${Config.AUTH_REALM}"`);
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGIN_URI} should send 204 status with session cookie using correct password`, async () => {
+	test(`${Config.LOGIN_URI} should send 204 status with session cookie using correct password`, async () => {
 		const checkPasswordSpy = jest.spyOn(user, 'checkPassword');
 		checkPasswordSpy.mockResolvedValueOnce(new user.User({ email: faker.internet.email(), auth: Auth.ADMIN }));
 
@@ -88,7 +90,7 @@ describe(`Login Route Tests`, () => {
 		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date() });
 
 		await request(app)
-			.post(process.env.AUTH_NEO4J_LOGIN_URI as string)
+			.post(Config.LOGIN_URI)
 			.send({ email: faker.internet.email(), password: faker.internet.password() })
 			.expect(204)
 			.then(response => {

@@ -1,6 +1,8 @@
 import neo4j, { Driver } from 'neo4j-driver';
 import { destroyDB, initializeDB, ErrorMsgs as DBErrorMsgs } from '../../src/db/utils';
 
+import Config from '../../src/config/config';
+
 describe(`DB Utils Tests`, () => {
 	beforeEach(() => {
 		jest.restoreAllMocks();
@@ -10,7 +12,7 @@ describe(`DB Utils Tests`, () => {
 		const mockRecord = {
 			get: (key: string) => {
 				if (key === 'address') {
-					return `${process.env.AUTH_NEO4J_NEO4J_HOST}:${process.env.AUTH_NEO4J_NEO4J_PORT}`;
+					return `${Config.NEO4J_HOST}:${Config.NEO4J_PORT}`;
 				}
 			},
 		};
@@ -67,7 +69,7 @@ describe(`DB Utils Tests`, () => {
 		const mockRecord = {
 			get: (key: string) => {
 				if (key === 'address') {
-					return `${process.env.AUTH_NEO4J_NEO4J_HOST}:${process.env.AUTH_NEO4J_NEO4J_PORT}`;
+					return `${Config.NEO4J_HOST}:${Config.NEO4J_PORT}`;
 				}
 			},
 		};

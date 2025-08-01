@@ -5,6 +5,8 @@ import { connect } from '../db/connection';
 import { InternalError } from '../errors/errors';
 import { User } from '../users/user';
 
+import Config from '../config/config';
+
 export enum Errors {
 	COULD_NOT_CREATE_SESSION = 'There was an error creating a session',
 	COULD_NOT_VALIDATE_SESSION = 'There was an error validating a session',
@@ -15,10 +17,10 @@ export enum Errors {
 export async function createSession(token: string, email: string): Promise<Session | undefined> {
 	const sessionId: string = hashToken(token);
 	const expiresAt: Date = new Date();
-	expiresAt.setDate(expiresAt.getDate() + parseInt(process.env.AUTH_NEO4J_TOKEN_EXPIRATION as string));
+	expiresAt.setDate(expiresAt.getDate() + Config.TOKEN_EXPIRATION);
 
 	const driver: Driver = await connect();
-	const neoSession: NeoSession = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const neoSession: NeoSession = driver.session({ database: Config.USERS_DB });
 
 	let match: RecordShape;
 
@@ -60,7 +62,7 @@ export async function validateSessionToken(token?: string): Promise<SessionValid
 	const sessionId: string = hashToken(token);
 
 	const driver: Driver = await connect();
-	const neoSession: NeoSession = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const neoSession: NeoSession = driver.session({ database: Config.USERS_DB });
 
 	let match: RecordShape;
 
@@ -97,7 +99,7 @@ export async function validateSessionToken(token?: string): Promise<SessionValid
 
 export async function invalidateSession(sessionId: string): Promise<void> {
 	const driver = await connect();
-	const neoSession: NeoSession = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const neoSession: NeoSession = driver.session({ database: Config.USERS_DB });
 
 	try {
 		await neoSession.run(`MATCH (u:User)-[r:HAS_SESSION {sessionId: $sessionId}]->(s:Session) DETACH DELETE s`, { sessionId });
@@ -114,7 +116,7 @@ export async function invalidateSession(sessionId: string): Promise<void> {
 
 export async function invalidateAllSessions(email: string): Promise<void> {
 	const driver = await connect();
-	const neoSession: NeoSession = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const neoSession: NeoSession = driver.session({ database: Config.USERS_DB });
 
 	try {
 		await neoSession.run(`MATCH (u:User {email: $email})-[r:HAS_SESSION]->(s:Session) DETACH DELETE s`, { email });

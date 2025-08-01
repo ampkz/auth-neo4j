@@ -6,6 +6,8 @@ import * as user from '../../../src/users/user';
 import * as crudSession from '../../../src/sessions/crud-session';
 import { Auth } from '../../../src/auth/auth';
 
+import Config from '../../../src/config/config';
+
 describe(`Logout Route Tests`, () => {
 	let app: Express;
 
@@ -17,36 +19,36 @@ describe(`Logout Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGOUT_URI} should send 405 status on PUT with Allow header 'GET'`, async () => {
+	test(`${Config.LOGOUT_URI} should send 405 status on PUT with Allow header 'GET'`, async () => {
 		await request(app)
-			.put(process.env.AUTH_NEO4J_LOGOUT_URI as string)
+			.put(Config.LOGOUT_URI)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toBe('GET');
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGOUT_URI} should send 405 status on POST with Allow header 'GET'`, async () => {
+	test(`${Config.LOGOUT_URI} should send 405 status on POST with Allow header 'GET'`, async () => {
 		await request(app)
-			.post(process.env.AUTH_NEO4J_LOGOUT_URI as string)
+			.post(Config.LOGOUT_URI)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toBe('GET');
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGOUT_URI} should send 405 status on DELETE with Allow header 'GET'`, async () => {
+	test(`${Config.LOGOUT_URI} should send 405 status on DELETE with Allow header 'GET'`, async () => {
 		await request(app)
-			.delete(process.env.AUTH_NEO4J_LOGOUT_URI as string)
+			.delete(Config.LOGOUT_URI)
 			.expect(405)
 			.then(response => {
 				expect(response.headers.allow).toBe('GET');
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGOUT_URI} should send 200 status if no cookie exists`, async () => {
+	test(`${Config.LOGOUT_URI} should send 200 status if no cookie exists`, async () => {
 		await request(app)
-			.get(process.env.AUTH_NEO4J_LOGOUT_URI as string)
+			.get(Config.LOGOUT_URI)
 			.expect(204)
 			.then(response => {
 				expect(response.body).toEqual({});
@@ -54,7 +56,7 @@ describe(`Logout Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_LOGOUT_URI} should send 204 status and delete session cookie`, async () => {
+	test(`${Config.LOGOUT_URI} should send 204 status and delete session cookie`, async () => {
 		const checkPasswordSpy = jest.spyOn(user, 'checkPassword');
 		checkPasswordSpy.mockResolvedValueOnce(new user.User({ email: faker.internet.email(), auth: Auth.ADMIN }));
 
@@ -73,7 +75,7 @@ describe(`Logout Route Tests`, () => {
 		const agent = request.agent(app);
 
 		await agent
-			.post(process.env.AUTH_NEO4J_LOGIN_URI as string)
+			.post(Config.LOGIN_URI)
 			.send({ email: faker.internet.email(), password: faker.internet.password() })
 			.expect(204)
 			.then(response => {
@@ -83,7 +85,7 @@ describe(`Logout Route Tests`, () => {
 			});
 
 		await agent
-			.get(process.env.AUTH_NEO4J_LOGOUT_URI as string)
+			.get(Config.LOGOUT_URI)
 			.expect(204)
 			.then(response => {
 				expect(response.body).toEqual({});

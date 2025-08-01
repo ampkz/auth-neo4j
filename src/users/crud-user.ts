@@ -4,6 +4,8 @@ import { Driver, Record, RecordShape, Session } from 'neo4j-driver';
 import { connect } from '../db/connection';
 import { InternalError } from '../errors/errors';
 
+import Config from '../config/config';
+
 export enum Errors {
 	COULD_NOT_CREATE_USER = 'There was an error trying to create user.',
 	COULD_NOT_GET_USER = 'There was an error trying to search for user.',
@@ -12,10 +14,10 @@ export enum Errors {
 }
 
 export async function createUser(user: User, password: string): Promise<User | undefined> {
-	const pwdHash: string = await bcrypt.hash(password, parseInt(process.env.AUTH_NEO4J_SALT_ROUNDS as string));
+	const pwdHash: string = await bcrypt.hash(password, Config.SALT_ROUNDS);
 
 	const driver: Driver = await connect();
-	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const session: Session = driver.session({ database: Config.USERS_DB });
 
 	const props: string[] = ['id:apoc.create.uuid()', 'email: $email', 'auth: $auth', 'pwd: $pwdHash'];
 
@@ -45,7 +47,7 @@ export async function createUser(user: User, password: string): Promise<User | u
 
 export async function getUser(id: string): Promise<User | undefined> {
 	const driver: Driver = await connect();
-	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const session: Session = driver.session({ database: Config.USERS_DB });
 
 	let match: RecordShape;
 
@@ -69,7 +71,7 @@ export async function getUser(id: string): Promise<User | undefined> {
 
 export async function deleteUser(id: string): Promise<User | undefined> {
 	const driver: Driver = await connect();
-	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const session: Session = driver.session({ database: Config.USERS_DB });
 
 	let match: RecordShape;
 
@@ -95,7 +97,7 @@ export async function updateUser(id: string, userUpdates: UserUpdates): Promise<
 	const props: string[] = [];
 
 	if (userUpdates.updatedPassword) {
-		userUpdates.updatedPassword = await bcrypt.hash(userUpdates.updatedPassword, parseInt(process.env.SALT_ROUNDS as string));
+		userUpdates.updatedPassword = await bcrypt.hash(userUpdates.updatedPassword, Config.SALT_ROUNDS);
 		props.push(`u.password = $updatedPassword`);
 	}
 
@@ -106,7 +108,7 @@ export async function updateUser(id: string, userUpdates: UserUpdates): Promise<
 	if (userUpdates.updatedSecondName) props.push(`u.secondName = $updatedSecondName`);
 
 	const driver: Driver = await connect();
-	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const session: Session = driver.session({ database: Config.USERS_DB });
 
 	let match: RecordShape;
 
@@ -132,7 +134,7 @@ export async function getAllUsers(): Promise<Array<User>> {
 	const users: Array<User> = [];
 
 	const driver: Driver = await connect();
-	const session: Session = driver.session({ database: process.env.AUTH_NEO4J_USERS_DB });
+	const session: Session = driver.session({ database: Config.USERS_DB });
 
 	let match: RecordShape;
 

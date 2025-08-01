@@ -8,6 +8,8 @@ import { Auth } from '../../../src/auth/auth';
 import { User } from '../../../src/users/user';
 import { faker } from '@faker-js/faker';
 
+import Config from '../../../src/config/config';
+
 describe(`Get Users Route Tests`, () => {
 	let app: Express;
 
@@ -19,7 +21,7 @@ describe(`Get Users Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 200 status with list of users on GET with admin auth`, async () => {
+	test(`${Config.USER_URI} should send 200 status with list of users on GET with admin auth`, async () => {
 		const token = generateSessionToken();
 
 		const userOne = new User({ email: faker.internet.email(), auth: Auth.ADMIN });
@@ -36,7 +38,7 @@ describe(`Get Users Route Tests`, () => {
 		getAllusersSpy.mockResolvedValueOnce([userOne, userTwo, userThree]);
 
 		await request(app)
-			.get(process.env.AUTH_NEO4J_USER_URI as string)
+			.get(Config.USER_URI)
 			.set('Cookie', `token=${token}`)
 			.expect(200)
 			.then(response => {
@@ -46,13 +48,11 @@ describe(`Get Users Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 401 status without token cookie`, async () => {
-		await request(app)
-			.get(process.env.AUTH_NEO4J_USER_URI as string)
-			.expect(401);
+	test(`${Config.USER_URI} should send 401 status without token cookie`, async () => {
+		await request(app).get(Config.USER_URI).expect(401);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 403 status if the session couldn't be validated`, async () => {
+	test(`${Config.USER_URI} should send 403 status if the session couldn't be validated`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -61,13 +61,10 @@ describe(`Get Users Route Tests`, () => {
 			user: null,
 		});
 
-		await request(app)
-			.get(process.env.AUTH_NEO4J_USER_URI as string)
-			.set('Cookie', `token=${token}`)
-			.expect(403);
+		await request(app).get(Config.USER_URI).set('Cookie', `token=${token}`).expect(403);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI} should send 401 status with contributor auth`, async () => {
+	test(`${Config.USER_URI} should send 401 status with contributor auth`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -76,9 +73,6 @@ describe(`Get Users Route Tests`, () => {
 			user: { id: '', email: '', auth: Auth.CONTRIBUTOR },
 		});
 
-		await request(app)
-			.get(process.env.AUTH_NEO4J_USER_URI as string)
-			.set('Cookie', `token=${token}`)
-			.expect(401);
+		await request(app).get(Config.USER_URI).set('Cookie', `token=${token}`).expect(401);
 	});
 });

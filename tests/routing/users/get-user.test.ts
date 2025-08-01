@@ -8,6 +8,8 @@ import { Auth } from '../../../src/auth/auth';
 import { User } from '../../../src/users/user';
 import { faker } from '@faker-js/faker';
 
+import Config from '../../../src/config/config';
+
 describe(`Get User Route Tests`, () => {
 	let app: Express;
 
@@ -19,7 +21,7 @@ describe(`Get User Route Tests`, () => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 200 status with a user on GET as admin`, async () => {
+	test(`${Config.USER_URI}/:userId should send 200 status with a user on GET as admin`, async () => {
 		const token = generateSessionToken(),
 			id = faker.database.mongodbObjectId();
 
@@ -35,7 +37,7 @@ describe(`Get User Route Tests`, () => {
 		getUserSpy.mockResolvedValueOnce(user);
 
 		await request(app)
-			.get(`${process.env.AUTH_NEO4J_USER_URI}/${id}`)
+			.get(`${Config.USER_URI}/${id}`)
 			.set('Cookie', `token=${token}`)
 			.expect(200)
 			.then(response => {
@@ -43,7 +45,7 @@ describe(`Get User Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 404 status if no user was found on GET as admin`, async () => {
+	test(`${Config.USER_URI}/:userId should send 404 status if no user was found on GET as admin`, async () => {
 		const token = generateSessionToken(),
 			id = faker.database.mongodbObjectId();
 
@@ -56,10 +58,10 @@ describe(`Get User Route Tests`, () => {
 		const getUserSpy = jest.spyOn(crudUser, 'getUser');
 		getUserSpy.mockResolvedValueOnce(undefined);
 
-		await request(app).get(`${process.env.AUTH_NEO4J_USER_URI}/${id}`).set('Cookie', `token=${token}`).expect(404);
+		await request(app).get(`${Config.USER_URI}/${id}`).set('Cookie', `token=${token}`).expect(404);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 200 status with a user on GET as self contirbutor`, async () => {
+	test(`${Config.USER_URI}/:userId should send 200 status with a user on GET as self contirbutor`, async () => {
 		const token = generateSessionToken(),
 			id = faker.database.mongodbObjectId();
 
@@ -75,7 +77,7 @@ describe(`Get User Route Tests`, () => {
 		getUserSpy.mockResolvedValueOnce(user);
 
 		await request(app)
-			.get(`${process.env.AUTH_NEO4J_USER_URI}/${id}`)
+			.get(`${Config.USER_URI}/${id}`)
 			.set('Cookie', `token=${token}`)
 			.expect(200)
 			.then(response => {
@@ -83,11 +85,11 @@ describe(`Get User Route Tests`, () => {
 			});
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 401 status without token cookie`, async () => {
-		await request(app).get(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
+	test(`${Config.USER_URI}/:userId should send 401 status without token cookie`, async () => {
+		await request(app).get(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 403 status if the session couldn't be validated`, async () => {
+	test(`${Config.USER_URI}/:userId should send 403 status if the session couldn't be validated`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -96,10 +98,10 @@ describe(`Get User Route Tests`, () => {
 			user: null,
 		});
 
-		await request(app).get(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
+		await request(app).get(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
 	});
 
-	test(`${process.env.AUTH_NEO4J_USER_URI}/:userId should send 401 status as non-self contributor`, async () => {
+	test(`${Config.USER_URI}/:userId should send 401 status as non-self contributor`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -108,6 +110,6 @@ describe(`Get User Route Tests`, () => {
 			user: { id: '', email: '', auth: Auth.CONTRIBUTOR },
 		});
 
-		await request(app).get(`${process.env.AUTH_NEO4J_USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
+		await request(app).get(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
 	});
 });
