@@ -64,11 +64,18 @@ export async function deleteUser(req: Request, res: Response) {
 
 export async function updateUser(req: Request, res: Response) {
 	const { id } = req.params;
-	const { updatedAuth, updatedEmail, updatedFirstName, updatedLastName, updatedSecondName, updatedPassword } = req.body;
+	const {
+		auth: updatedAuth,
+		email: updatedEmail,
+		firstName: updatedFirstName,
+		lastName: updatedLastName,
+		secondName: updatedSecondName,
+		password: updatedPassword,
+	} = req.body;
 
 	const required: FieldErrors = new FieldErrors(RoutingErrors.INVALID_REQUEST);
 
-	if (updatedAuth && !isValidAuth(updatedAuth)) required.addFieldError(new FieldError(`updatedAuth`, FieldError.INVALID_AUTH));
+	if (updatedAuth && !isValidAuth(updatedAuth)) required.addFieldError(new FieldError(`auth`, FieldError.INVALID_AUTH));
 
 	if (required.hasFieldErrors()) {
 		return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();

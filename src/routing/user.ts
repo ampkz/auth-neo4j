@@ -9,13 +9,15 @@ export default function userRouter(userURI: string): Router {
 
 	router.get(userURI, permitRoles(Auth.ADMIN), getUsers);
 	router.put(userURI, sendStatus405('GET', 'POST'));
+	router.patch(userURI, sendStatus405('GET', 'POST'));
 	router.delete(userURI, sendStatus405('GET', 'POST'));
 	router.post(userURI, permitRoles(Auth.ADMIN), createUser);
 
 	router.get(`${userURI}/:userId`, permitRoles(Auth.ADMIN, Auth.SELF), getUser);
-	router.put(`${userURI}/:userId`, permitRoles(Auth.ADMIN, Auth.SELF), updateUser);
+	router.patch(`${userURI}/:userId`, permitRoles(Auth.ADMIN, Auth.SELF), updateUser);
 	router.delete(`${userURI}/:userId`, permitRoles(Auth.ADMIN, Auth.SELF), deleteUser);
-	router.post(`${userURI}/:userId`, sendStatus405('GET', 'PUT', 'DELETE'));
+	router.post(`${userURI}/:userId`, sendStatus405('GET', 'PATCH', 'DELETE'));
+	router.put(`${userURI}/:userId`, sendStatus405('GET', 'PATCH', 'DELETE'));
 
 	return router;
 }

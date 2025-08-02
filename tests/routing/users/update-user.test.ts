@@ -31,7 +31,7 @@ describe(`Update User Route Tests`, () => {
 			user: null,
 		});
 
-		await request(app).put(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
+		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
 	});
 
 	test(`${Config.USER_URI}/:userId should send 401 status with contributor auth`, async () => {
@@ -43,11 +43,11 @@ describe(`Update User Route Tests`, () => {
 			user: { id: '', email: '', auth: Auth.CONTRIBUTOR },
 		});
 
-		await request(app).put(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
+		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
 	});
 
 	test(`${Config.USER_URI} should send 401 status without token cookie`, async () => {
-		await request(app).put(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
+		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
 	});
 
 	test(`${Config.USER_URI}/:userId should send 400 status with invalid updatedAuth type`, async () => {
@@ -60,13 +60,13 @@ describe(`Update User Route Tests`, () => {
 		});
 
 		await request(app)
-			.put(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
+			.patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
 			.set('Cookie', `token=${token}`)
-			.send({ updatedAuth: 'not auth' })
+			.send({ auth: 'not auth' })
 			.expect(400)
 			.then(response => {
 				expect(response.body.message).toBe(RoutingErrors.INVALID_REQUEST);
-				expect(response.body.data).toContainEqual({ field: 'updatedAuth', message: FieldError.INVALID_AUTH });
+				expect(response.body.data).toContainEqual({ field: 'auth', message: FieldError.INVALID_AUTH });
 			});
 	});
 
@@ -82,7 +82,7 @@ describe(`Update User Route Tests`, () => {
 		const getUserSpy = jest.spyOn(crudUser, 'getUser');
 		getUserSpy.mockResolvedValue(undefined);
 
-		await request(app).put(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(404);
+		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).send({}).expect(404);
 	});
 
 	test(`${Config.USER_URI}/:userId should send 403 status if a contributor is trying to escalate their role to admin`, async () => {
@@ -98,9 +98,9 @@ describe(`Update User Route Tests`, () => {
 		getUserSpy.mockResolvedValue(new User({ email: faker.internet.email(), auth: Auth.CONTRIBUTOR }));
 
 		await request(app)
-			.put(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
+			.patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
 			.set('Cookie', `token=${token}`)
-			.send({ updatedAuth: Auth.ADMIN })
+			.send({ auth: Auth.ADMIN })
 			.expect(403);
 	});
 
@@ -119,17 +119,17 @@ describe(`Update User Route Tests`, () => {
 		const updateUserSpy = jest.spyOn(crudUser, 'updateUser');
 		updateUserSpy.mockResolvedValue(undefined);
 
-		await request(app).put(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(422);
+		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).send({}).expect(422);
 	});
 
 	test(`${Config.USER_URI}/:userId should send 200 status with updated user on a successful update as admin`, async () => {
 		const token = generateSessionToken(),
-			updatedAuth = Auth.CONTRIBUTOR,
-			updatedEmail = faker.internet.email(),
-			updatedFirstName = faker.person.firstName(),
-			updatedLastName = faker.person.lastName(),
-			updatedSecondName = faker.person.middleName(),
-			updatedPassword = faker.internet.password();
+			auth = Auth.CONTRIBUTOR,
+			email = faker.internet.email(),
+			firstName = faker.person.firstName(),
+			lastName = faker.person.lastName(),
+			secondName = faker.person.middleName(),
+			password = faker.internet.password();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
@@ -141,20 +141,20 @@ describe(`Update User Route Tests`, () => {
 		getUserSpy.mockResolvedValue(new User({ email: faker.internet.email(), auth: Auth.ADMIN }));
 
 		const updatedUser = new User({
-			auth: updatedAuth,
-			email: updatedEmail,
-			firstName: updatedFirstName,
-			lastName: updatedLastName,
-			secondName: updatedSecondName,
+			auth,
+			email,
+			firstName,
+			lastName,
+			secondName,
 		});
 
 		const updateUserSpy = jest.spyOn(crudUser, 'updateUser');
 		updateUserSpy.mockResolvedValue(updatedUser);
 
 		await request(app)
-			.put(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
+			.patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
 			.set('Cookie', `token=${token}`)
-			.send({ updatedAuth, updatedEmail, updatedFirstName, updatedPassword, updatedLastName, updatedSecondName })
+			.send({ auth, email, firstName, password, lastName, secondName })
 			.expect(200)
 			.then(response => {
 				expect(response.body).toEqual(updatedUser);
@@ -163,12 +163,12 @@ describe(`Update User Route Tests`, () => {
 
 	test(`${Config.USER_URI}/:userId should send 200 status with updated user on a successful update as self contributor`, async () => {
 		const token = generateSessionToken(),
-			updatedAuth = Auth.CONTRIBUTOR,
-			updatedEmail = faker.internet.email(),
-			updatedFirstName = faker.person.firstName(),
-			updatedLastName = faker.person.lastName(),
-			updatedSecondName = faker.person.middleName(),
-			updatedPassword = faker.internet.password(),
+			auth = Auth.CONTRIBUTOR,
+			email = faker.internet.email(),
+			firstName = faker.person.firstName(),
+			lastName = faker.person.lastName(),
+			secondName = faker.person.middleName(),
+			password = faker.internet.password(),
 			id = faker.database.mongodbObjectId();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -181,11 +181,11 @@ describe(`Update User Route Tests`, () => {
 		getUserSpy.mockResolvedValue(new User({ id, email: faker.internet.email(), auth: Auth.ADMIN }));
 
 		const updatedUser = new User({
-			auth: updatedAuth,
-			email: updatedEmail,
-			firstName: updatedFirstName,
-			lastName: updatedLastName,
-			secondName: updatedSecondName,
+			auth,
+			email,
+			firstName,
+			lastName,
+			secondName,
 			id,
 		});
 
@@ -193,9 +193,9 @@ describe(`Update User Route Tests`, () => {
 		updateUserSpy.mockResolvedValue(updatedUser);
 
 		await request(app)
-			.put(`${Config.USER_URI}/${id}`)
+			.patch(`${Config.USER_URI}/${id}`)
 			.set('Cookie', `token=${token}`)
-			.send({ updatedAuth, updatedEmail, updatedFirstName, updatedPassword, updatedLastName, updatedSecondName })
+			.send({ auth, email, firstName, password, lastName, secondName })
 			.expect(200)
 			.then(response => {
 				expect(response.body).toEqual(updatedUser);
