@@ -29,7 +29,10 @@ export async function login(req: Request, res: Response) {
 
 	await createSession(token, email);
 
-	return res.status(204).cookie(`token`, token, { httpOnly: true, maxAge: Config.COOKIE_EXPIRATION, sameSite: 'strict' }).end();
+	return res
+		.status(204)
+		.cookie(`token`, token, { httpOnly: true, maxAge: Config.COOKIE_EXPIRATION, sameSite: Config.SAME_SITE, secure: Config.SECURE })
+		.end();
 }
 
 export async function logout(req: Request, res: Response) {

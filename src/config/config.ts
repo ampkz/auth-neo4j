@@ -16,4 +16,7 @@ export default class Config {
 	static NEO4J_PWD: string = process.env.NEO4J_PWD as string;
 	/* istanbul ignore next line */
 	static USERS_DB: string = `${process.env.USERS_DB as string}${process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ``}`;
+	static SAME_SITE: boolean | 'lax' | 'strict' | 'none' | undefined =
+		`${process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' ? 'lax' : 'none'}`;
+	static SECURE: boolean = process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test';
 }
