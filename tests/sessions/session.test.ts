@@ -1,4 +1,4 @@
-import { generateSessionToken, hashToken } from '../../src/sessions/session';
+import { generateSessionToken, hashToken } from '../../src/sessions/crud-session';
 
 describe(`Session utils tests`, () => {
 	it(`should hash a token`, () => {

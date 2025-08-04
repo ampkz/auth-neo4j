@@ -1,5 +1,6 @@
 import { Driver, RecordShape } from 'neo4j-driver-core';
-import { hashToken, Session, SessionValidationResult } from './session';
+import crypto from 'node:crypto';
+import { Session, SessionValidationResult } from './session';
 import { Session as NeoSession } from 'neo4j-driver';
 import { connect } from '../db/connection';
 import { InternalError } from '../errors/errors';
@@ -129,4 +130,12 @@ export async function invalidateAllSessions(email: string): Promise<void> {
 
 	await neoSession.close();
 	await driver.close();
+}
+
+export function generateSessionToken(bytes: number = 32): string {
+	return crypto.randomBytes(bytes).toString('hex');
+}
+
+export function hashToken(token: string): string {
+	return crypto.createHash('sha256').update(token).digest('hex');
 }

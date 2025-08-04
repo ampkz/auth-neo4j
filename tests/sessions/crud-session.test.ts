@@ -1,4 +1,5 @@
-import { generateSessionToken, hashToken, Session, SessionValidationResult } from '../../src/sessions/session';
+import { Session, SessionValidationResult } from '../../src/sessions/session';
+import { generateSessionToken, hashToken } from '../../src/sessions/crud-session';
 import {
 	createSession,
 	Errors as CRUDSessionErrors,

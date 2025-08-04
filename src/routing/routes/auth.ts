@@ -3,8 +3,8 @@ import { FieldError, FieldErrors, RoutingErrors } from '../../errors/errors';
 import { checkPassword } from '../../users/pwd';
 import { User } from '../../users/user';
 import { sendStatus401 } from '../../middleware/statusCodes';
-import { generateSessionToken, SessionValidationResult } from '../../sessions/session';
-import { createSession, invalidateSession, validateSessionToken } from '../../sessions/crud-session';
+import { SessionValidationResult } from '../../sessions/session';
+import { generateSessionToken, createSession, invalidateSession, validateSessionToken } from '../../sessions/crud-session';
 
 import Config from '../../config/config';
 

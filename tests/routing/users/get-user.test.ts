@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import authNeo4j from '../../../src';
 import request from 'supertest';
-import { generateSessionToken } from '../../../src/sessions/session';
+import { generateSessionToken } from '../../../src/sessions/crud-session';
 import * as crudSession from '../../../src/sessions/crud-session';
 import * as crudUser from '../../../src/users/crud-user';
 import { Auth } from '../../../src/auth/auth';
