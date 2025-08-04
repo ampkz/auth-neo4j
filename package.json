@@ -1,6 +1,6 @@
 {
 	"name": "@ampkz/auth-neo4j",
-	"version": "0.7.1",
+	"version": "0.7.3",
 	"description": "Simple Express middleware for session and user management using Neo4j.",
 	"homepage": "https://github.com/ampkz/auth-neo4j#readme",
 	"bugs": {
@@ -19,9 +19,41 @@
 	"files": [
 		"dist"
 	],
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.mts",
+				"default": "./dist/index.mjs"
+			},
+			"require": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			}
+		},
+		"./user": {
+			"import": {
+				"types": "./dist/users/user/user.d.mts",
+				"default": "./dist/users/user.mjs"
+			},
+			"require": {
+				"types": "./dist/users/user/user/d.ts",
+				"default": "./dist/users/user.js"
+			}
+		},
+		"./auth": {
+			"import": {
+				"types": "./dist/auth/auth.d.mts",
+				"default": "./dist/auth/auth.mjs"
+			},
+			"require": {
+				"types": "./dist/auth/auth.d.ts",
+				"default": "./dist/auth/auth.js"
+			}
+		}
+	},
 	"scripts": {
 		"prepare": "npm run build",
-		"build": "tsup",
+		"build": "tsup && fix-tsup-cjs",
 		"test": "jest --coverage"
 	},
 	"devDependencies": {
@@ -34,6 +66,7 @@
 		"@types/node": "^22.13.1",
 		"@types/supertest": "^6.0.2",
 		"eslint": "^9.20.1",
+		"fix-tsup-cjs": "^1.2.0",
 		"globals": "^15.15.0",
 		"jest": "^29.7.0",
 		"prettier": "^3.5.1",

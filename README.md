@@ -43,7 +43,7 @@ app.listen(port, () => {
 ## Example CommonJS Project
 
 ```js
-const { authNeo4j } = require('auth-neo4j');
+const authNeo4j = require('auth-neo4j');
 const express = require('express');
 
 const app = express();
