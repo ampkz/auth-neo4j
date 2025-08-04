@@ -3,15 +3,9 @@ import { UserUpdates, User } from './user';
 import { Driver, Record, RecordShape, Session } from 'neo4j-driver';
 import { connect } from '../db/connection';
 import { InternalError } from '../errors/errors';
+import { Errors } from './user';
 
 import Config from '../config/config';
-
-export enum Errors {
-	COULD_NOT_CREATE_USER = 'There was an error trying to create user.',
-	COULD_NOT_GET_USER = 'There was an error trying to search for user.',
-	COULD_NOT_DELETE_USER = 'There was an error trying to delete user.',
-	COULD_NOT_UPDATE_USER = 'There was an error trying to update user.',
-}
 
 export async function createUser(user: User, password: string): Promise<User | undefined> {
 	const pwdHash: string = await bcrypt.hash(password, Config.SALT_ROUNDS);

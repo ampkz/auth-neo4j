@@ -1,6 +1,6 @@
 {
 	"name": "@ampkz/auth-neo4j",
-	"version": "0.7.4",
+	"version": "0.8.0",
 	"description": "Simple Express middleware for session and user management using Neo4j.",
 	"homepage": "https://github.com/ampkz/auth-neo4j#readme",
 	"bugs": {
@@ -30,14 +30,24 @@
 				"default": "./dist/index.js"
 			}
 		},
-		"./utils": {
+		"./db": {
 			"import": {
-				"types": "./dist/api/utils.d.mts",
-				"default": "./dist/api/utils.mjs"
+				"types": "./dist/api/utils/db.d.mts",
+				"default": "./dist/api/utils/db.mjs"
 			},
 			"require": {
-				"types": "./dist/api/utils.d.ts",
-				"default": "./dist/api/utils.js"
+				"types": "./dist/api/utils/db.d.ts",
+				"default": "./dist/api/utils/db.js"
+			}
+		},
+		"./token": {
+			"import": {
+				"types": "./dist/api/utils/session.d.mts",
+				"default": "./dist/api/utils/session.mjs"
+			},
+			"require": {
+				"types": "./dist/api/utils/session.d.ts",
+				"default": "./dist/api/utils/session.js"
 			}
 		},
 		"./user": {

@@ -1,7 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { Auth } from '../../src/auth/auth';
 import { UserUpdates, User } from '../../src/users/user';
-import { createUser, Errors as CRUDUserErrors, deleteUser, getAllUsers, getUser, updateUser } from '../../src/users/crud-user';
+import { createUser, deleteUser, getAllUsers, getUser, updateUser } from '../../src/users/crud-user';
+import { Errors as CRUDUserErrors } from '../../src/users/user';
 import neo4j, { Driver } from 'neo4j-driver';
 
 describe(`CRUD User Test`, () => {

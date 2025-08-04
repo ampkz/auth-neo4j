@@ -1,7 +1,10 @@
 import neo4j, { Driver } from 'neo4j-driver';
-import { destroyDB, initializeDB, ErrorMsgs as DBErrorMsgs } from '../../src/db/utils';
-
+import { destroyDB, initializeDB, ErrorMsgs as DBErrorMsgs, initUser } from '../../src/db/utils';
+import * as crudUser from '../../src/users/crud-user';
 import Config from '../../src/config/config';
+import { User } from '../../src/users/user';
+import { faker } from '@faker-js/faker';
+import { Auth } from '../../src/auth/auth';
 
 describe(`DB Utils Tests`, () => {
 	beforeEach(() => {
@@ -112,5 +115,36 @@ describe(`DB Utils Tests`, () => {
 		driverSpy.mockReturnValue(driverMock);
 
 		await expect(destroyDB()).resolves.toBeTruthy();
+	});
+
+	test(`initUser should create a defined user`, async () => {
+		const user: User = new User({
+			email: faker.internet.email(),
+			auth: Auth.ADMIN,
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
+			secondName: faker.person.middleName(),
+		});
+
+		const newUser = await initUser(user, faker.internet.password());
+
+		user.id = newUser.id;
+
+		expect(newUser).toEqual(user);
+	});
+
+	test(`initUser should throw an error if no user was created`, async () => {
+		const createUserSpy = jest.spyOn(crudUser, 'createUser');
+		createUserSpy.mockResolvedValue(undefined);
+
+		const user: User = new User({
+			email: faker.internet.email(),
+			auth: Auth.ADMIN,
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
+			secondName: faker.person.middleName(),
+		});
+
+		await expect(initUser(user, faker.internet.password())).rejects.toBeDefined();
 	});
 });

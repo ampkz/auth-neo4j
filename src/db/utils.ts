@@ -3,11 +3,13 @@ import { Driver, Session, RecordShape, Record } from 'neo4j-driver';
 import { InternalError } from '../errors/errors';
 
 import Config from '../config/config';
+import { User, Errors as UserErrors } from '../users/user';
+import { createUser } from '../users/crud-user';
 
 export enum ErrorMsgs {
 	COULD_NOT_CREATE_DB = 'Could Not Create Database',
 	COULD_NOT_CREATE_CONSTRAINT = 'Could Not Create Constraint',
-	CONSTRAINT_ALREADY_EXISTS = 'Constrain Already Exists',
+	CONSTRAINT_ALREADY_EXISTS = 'Constraint Already Exists',
 }
 
 export async function initializeDB(): Promise<boolean> {
@@ -70,4 +72,14 @@ export async function destroyDB(): Promise<boolean> {
 	await driver.close();
 
 	return true;
+}
+
+export async function initUser(user: User, password: string): Promise<User> {
+	const newUser: User | undefined = await createUser(user, password);
+
+	if (newUser === undefined) {
+		throw new InternalError(UserErrors.COULD_NOT_CREATE_USER);
+	}
+
+	return newUser;
 }

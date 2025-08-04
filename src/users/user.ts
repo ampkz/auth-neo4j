@@ -35,3 +35,10 @@ export class User implements IUser {
 		this.secondName = user.secondName;
 	}
 }
+
+export enum Errors {
+	COULD_NOT_CREATE_USER = 'There was an error trying to create user.',
+	COULD_NOT_GET_USER = 'There was an error trying to search for user.',
+	COULD_NOT_DELETE_USER = 'There was an error trying to delete user.',
+	COULD_NOT_UPDATE_USER = 'There was an error trying to update user.',
+}

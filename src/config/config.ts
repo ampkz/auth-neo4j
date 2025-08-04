@@ -15,10 +15,11 @@ export default class Config {
 	static NEO4J_USER: string = process.env.NEO4J_USER as string;
 	static NEO4J_PWD: string = process.env.NEO4J_PWD as string;
 	/* istanbul ignore next line */
+	static IS_NOT_PROD: boolean = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+	/* istanbul ignore next line */
 	static USERS_DB: string = `${process.env.USERS_DB as string}${process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ``}`;
 	/* istanbul ignore next line */
-	static SAME_SITE: boolean | 'lax' | 'strict' | 'none' | undefined =
-		`${process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' ? 'lax' : 'none'}`;
+	static SAME_SITE: boolean | 'lax' | 'strict' | 'none' | undefined = `${Config.IS_NOT_PROD ? 'lax' : 'none'}`;
 	/* istanbul ignore next line */
-	static SECURE: boolean = process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test';
+	static SECURE: boolean = !Config.IS_NOT_PROD;
 }
