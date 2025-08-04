@@ -1,5 +1,6 @@
-import { validateSessionToken } from '../../sessions/crud-session';
+import { validateSessionToken, generateSessionToken } from '../../sessions/crud-session';
 
 export default {
 	validateSessionToken,
+	generateSessionToken,
 };
