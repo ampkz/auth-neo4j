@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { checkPassword, User } from '../../src/users/user';
+import { User } from '../../src/users/user';
+import { checkPassword } from '../../src/users/pwd';
 import { createUser } from '../../src/users/crud-user';
 import { Auth } from '../../src/auth/auth';
 

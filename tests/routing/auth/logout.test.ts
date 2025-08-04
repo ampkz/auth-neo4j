@@ -2,7 +2,8 @@ import { Express } from 'express';
 import authNeo4j from '../../../src';
 import request from 'supertest';
 import { faker } from '@faker-js/faker';
-import * as user from '../../../src/users/user';
+import * as pwd from '../../../src/users/pwd';
+import { User } from '../../../src/users/user';
 import * as crudSession from '../../../src/sessions/crud-session';
 import { Auth } from '../../../src/auth/auth';
 
@@ -57,8 +58,8 @@ describe(`Logout Route Tests`, () => {
 	});
 
 	test(`${Config.LOGOUT_URI} should send 204 status and delete session cookie`, async () => {
-		const checkPasswordSpy = jest.spyOn(user, 'checkPassword');
-		checkPasswordSpy.mockResolvedValueOnce(new user.User({ email: faker.internet.email(), auth: Auth.ADMIN }));
+		const checkPasswordSpy = jest.spyOn(pwd, 'checkPassword');
+		checkPasswordSpy.mockResolvedValueOnce(new User({ email: faker.internet.email(), auth: Auth.ADMIN }));
 
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
 		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date() });
@@ -66,7 +67,7 @@ describe(`Logout Route Tests`, () => {
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
 			session: { id: '', userID: '', expiresAt: new Date() },
-			user: new user.User({ email: faker.internet.email(), auth: Auth.ADMIN }),
+			user: new User({ email: faker.internet.email(), auth: Auth.ADMIN }),
 		});
 
 		const invalidateSessionSpy = jest.spyOn(crudSession, 'invalidateSession');

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { FieldError, FieldErrors, RoutingErrors } from '../../errors/errors';
-import { checkPassword, User } from '../../users/user';
+import { checkPassword } from '../../users/pwd';
+import { User } from '../../users/user';
 import { sendStatus401 } from '../../middleware/statusCodes';
 import { generateSessionToken, SessionValidationResult } from '../../sessions/session';
 import { createSession, invalidateSession, validateSessionToken } from '../../sessions/crud-session';
