@@ -43,18 +43,13 @@ describe(`CRUD Session Tests`, () => {
 	});
 
 	test(`createSession should throw an error if there was an issue with the server`, async () => {
-		const invalidateAllSessionMock = {
-			run: jest.fn().mockResolvedValue(null),
-			close: jest.fn(),
-		};
-
 		const createSessionMock = {
 			run: jest.fn().mockRejectedValue(CRUDSessionErrors.COULD_NOT_CREATE_SESSION),
 			close: jest.fn(),
 		};
 
 		const driverMock = {
-			session: jest.fn().mockReturnValueOnce(invalidateAllSessionMock).mockReturnValueOnce(createSessionMock),
+			session: jest.fn().mockReturnValueOnce(createSessionMock),
 			close: jest.fn(),
 			getServerInfo: jest.fn(),
 		} as unknown as Driver;
