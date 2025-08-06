@@ -16,6 +16,8 @@ export enum Errors {
 }
 
 export async function createSession(token: string, email: string): Promise<Session | undefined> {
+	await invalidateAllSessions(email);
+
 	const sessionId: string = hashToken(token);
 	const expiresAt: Date = new Date();
 	expiresAt.setDate(expiresAt.getDate() + Config.SESSION_EXPIRATION);
