@@ -31,8 +31,9 @@ export async function login(req: Request, res: Response) {
 	await createSession(token, email);
 
 	return res
-		.status(204)
+		.status(200)
 		.cookie(`token`, token, { httpOnly: true, maxAge: Config.COOKIE_EXPIRATION, sameSite: Config.SAME_SITE, secure: Config.SECURE })
+		.json({ id: user.id })
 		.end();
 }
 

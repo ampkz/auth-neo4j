@@ -78,9 +78,8 @@ describe(`Logout Route Tests`, () => {
 		await agent
 			.post(Config.LOGIN_URI)
 			.send({ email: faker.internet.email(), password: faker.internet.password() })
-			.expect(204)
+			.expect(200)
 			.then(response => {
-				expect(response.body).toEqual({});
 				expect(response.header['set-cookie']).toBeDefined();
 				expect(response.header['set-cookie'][0]).toContain('token');
 			});

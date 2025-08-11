@@ -83,9 +83,13 @@ describe(`Login Route Tests`, () => {
 			});
 	});
 
-	test(`${Config.LOGIN_URI} should send 204 status with session cookie using correct password`, async () => {
+	test(`${Config.LOGIN_URI} should send 200 status with userId and session cookie using correct password`, async () => {
+		const id = faker.database.mongodbObjectId();
+
+		const user = new User({ id, email: faker.internet.email(), auth: Auth.ADMIN });
+
 		const checkPasswordSpy = jest.spyOn(pwd, 'checkPassword');
-		checkPasswordSpy.mockResolvedValueOnce(new User({ email: faker.internet.email(), auth: Auth.ADMIN }));
+		checkPasswordSpy.mockResolvedValueOnce(user);
 
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
 		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date() });
@@ -93,9 +97,9 @@ describe(`Login Route Tests`, () => {
 		await request(app)
 			.post(Config.LOGIN_URI)
 			.send({ email: faker.internet.email(), password: faker.internet.password() })
-			.expect(204)
+			.expect(200)
 			.then(response => {
-				expect(response.body).toEqual({});
+				expect(response.body).toEqual({ id });
 				expect(response.header['set-cookie']).toBeDefined();
 				expect(response.header['set-cookie'][0]).toContain('token');
 			});
