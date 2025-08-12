@@ -4,7 +4,13 @@ import { checkPassword } from '../../users/pwd';
 import { User } from '../../users/user';
 import { sendStatus401 } from '../../middleware/statusCodes';
 import { SessionValidationResult } from '../../sessions/session';
-import { generateSessionToken, createSession, invalidateSession, validateSessionToken } from '../../sessions/crud-session';
+import {
+	generateSessionToken,
+	createSession,
+	invalidateSession,
+	validateSessionToken,
+	invalidateAllSessions as sessionInvalidateAll,
+} from '../../sessions/crud-session';
 
 import Config from '../../config/config';
 
@@ -48,6 +54,32 @@ export async function logout(req: Request, res: Response) {
 
 	if (svr.session) {
 		await invalidateSession(svr.session.id);
+	}
+
+	return res.status(204).clearCookie('token').end();
+}
+
+export async function invalidateAllSessions(req: Request, res: Response) {
+	const token = req.cookies.token;
+
+	if (!token) {
+		return sendStatus401(res);
+	}
+
+	const { email } = req.body;
+
+	const required: FieldErrors = new FieldErrors(RoutingErrors.INVALID_REQUEST);
+
+	if (!email) required.addFieldError(new FieldError('email', FieldError.REQUIRED));
+
+	if (required.hasFieldErrors()) {
+		return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
+	}
+
+	const svr: SessionValidationResult = await validateSessionToken(token);
+
+	if (svr.session) {
+		await sessionInvalidateAll(email);
 	}
 
 	return res.status(204).clearCookie('token').end();
