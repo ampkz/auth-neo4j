@@ -10,6 +10,7 @@ import Config from '../config/config';
 
 export enum Errors {
 	COULD_NOT_CREATE_SESSION = 'There was an error creating a session',
+	COULD_NOT_CHECK_SESSION = 'There was an error checking for a session',
 	COULD_NOT_VALIDATE_SESSION = 'There was an error validating a session',
 	COULD_NOT_INVALIDATE_SESSION = 'There was an error invalidating a session',
 	COULD_NOT_INVALIDATE_ALL_SESSIONS = 'There was an error invalidating all sessions',
@@ -46,7 +47,6 @@ export async function createSession(token: string, email: string, host: string, 
 
 	const user: User = new User(match.records[0].get('u').properties);
 	const session: Session = match.records[0].get('s').properties;
-
 	session.id = sessionId;
 	session.userID = user.id as string;
 	session.expiresAt = expiresAt;
@@ -128,6 +128,37 @@ export async function invalidateAllSessions(email: string): Promise<void> {
 
 	await neoSession.close();
 	await driver.close();
+}
+
+export async function hasSession(email: string, host: string, userAgent: string): Promise<string | undefined> {
+	const driver = await connect();
+	const neoSession: NeoSession = driver.session({ database: Config.USERS_DB });
+
+	let match: RecordShape;
+
+	try {
+		match = await neoSession.run(`MATCH(:User {email: $email})-[r:HAS_SESSION]->(:Session {host: $host, userAgent: $userAgent}) RETURN r`, {
+			email,
+			host,
+			userAgent,
+		});
+	} catch (error) {
+		await neoSession.close();
+		await driver.close();
+
+		throw new InternalError(Errors.COULD_NOT_CHECK_SESSION, { cause: error });
+	}
+
+	await neoSession.close();
+	await driver.close();
+
+	if (match.records.length === 0) {
+		return undefined;
+	}
+
+	const sessionID = match.records[0].get('r').properties.sessionId;
+
+	return sessionID;
 }
 
 export function generateSessionToken(bytes: number = 32): string {

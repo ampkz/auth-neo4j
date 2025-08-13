@@ -1,5 +1,5 @@
 import { Session, SessionValidationResult } from '../../src/sessions/session';
-import { generateSessionToken, hashToken } from '../../src/sessions/crud-session';
+import { generateSessionToken, hashToken, hasSession } from '../../src/sessions/crud-session';
 import {
 	createSession,
 	Errors as CRUDSessionErrors,
@@ -221,5 +221,39 @@ describe(`CRUD Session Tests`, () => {
 		driverSpy.mockReturnValue(driverMock);
 
 		await expect(invalidateAllSessions(email)).rejects.toBeDefined();
+	});
+
+	test(`hasSession should return undefined if there was no matching session`, async () => {
+		const sessionToken = await hasSession(faker.internet.email(), faker.internet.ip(), faker.internet.userAgent());
+		expect(sessionToken).toBeUndefined();
+	});
+
+	test(`hasSession should return session id of existing session`, async () => {
+		const token = generateSessionToken();
+		const host = faker.internet.ip();
+		const userAgent = faker.internet.userAgent();
+		const session: Session = (await createSession(token, user.email, host, userAgent)) as Session;
+
+		const sessionID = await hasSession(user.email, host, userAgent);
+
+		expect(sessionID).toEqual(session.id);
+	});
+
+	test(`hasSession should throw an error if there was an error with the db`, async () => {
+		const hasSessionMock = {
+			run: jest.fn().mockRejectedValue(CRUDSessionErrors.COULD_NOT_CHECK_SESSION),
+			close: jest.fn(),
+		};
+
+		const driverMock = {
+			session: jest.fn().mockReturnValueOnce(hasSessionMock),
+			close: jest.fn(),
+			getServerInfo: jest.fn(),
+		} as unknown as Driver;
+
+		const driverSpy = jest.spyOn(neo4j, 'driver');
+		driverSpy.mockReturnValue(driverMock);
+
+		await expect(hasSession('', '', '')).rejects.toBeDefined();
 	});
 });
