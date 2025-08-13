@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export default class Config {
 	static SALT_ROUNDS: number = parseInt(process.env.SALT_ROUNDS as string);

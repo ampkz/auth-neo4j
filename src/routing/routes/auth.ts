@@ -10,6 +10,7 @@ import {
 	invalidateSession,
 	validateSessionToken,
 	invalidateAllSessions as sessionInvalidateAll,
+	hasSession,
 } from '../../sessions/crud-session';
 
 import Config from '../../config/config';
@@ -35,6 +36,10 @@ export async function login(req: Request, res: Response) {
 	/*istanbul ignore next line*/
 	const host = req.headers['host'] || '';
 	const userAgent = req.headers['user-agent'] || '';
+
+	const existingSessionId = await hasSession(email, host, userAgent);
+
+	if (existingSessionId) await invalidateSession(existingSessionId);
 
 	const token: string = generateSessionToken();
 

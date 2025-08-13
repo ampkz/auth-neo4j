@@ -91,6 +91,37 @@ describe(`Login Route Tests`, () => {
 		const checkPasswordSpy = jest.spyOn(pwd, 'checkPassword');
 		checkPasswordSpy.mockResolvedValueOnce(user);
 
+		const hasSessionSpy = jest.spyOn(crudSession, 'hasSession');
+		hasSessionSpy.mockResolvedValue(undefined);
+
+		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
+		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' });
+
+		await request(app)
+			.post(Config.LOGIN_URI)
+			.send({ email: faker.internet.email(), password: faker.internet.password() })
+			.expect(200)
+			.then(response => {
+				expect(response.body).toEqual({ id });
+				expect(response.header['set-cookie']).toBeDefined();
+				expect(response.header['set-cookie'][0]).toContain('token');
+			});
+	});
+
+	test(`${Config.LOGIN_URI} should invalidate an existing session before creating a new session`, async () => {
+		const id = faker.database.mongodbObjectId();
+
+		const user = new User({ id, email: faker.internet.email(), auth: Auth.ADMIN });
+
+		const checkPasswordSpy = jest.spyOn(pwd, 'checkPassword');
+		checkPasswordSpy.mockResolvedValueOnce(user);
+
+		const hasSessionSpy = jest.spyOn(crudSession, 'hasSession');
+		hasSessionSpy.mockResolvedValue(faker.database.mongodbObjectId());
+
+		const invalidateSessionSpy = jest.spyOn(crudSession, 'invalidateSession');
+		invalidateSessionSpy.mockResolvedValue();
+
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
 		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' });
 
