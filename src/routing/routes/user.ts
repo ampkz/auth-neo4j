@@ -18,7 +18,7 @@ export async function getUsers(req: Request, res: Response) {
 
 export async function getUser(req: Request, res: Response) {
 	const { id } = req.params;
-	console.log('params', req.params);
+
 	const user: User | undefined = await dbGetUser(id);
 
 	if (!user) {
