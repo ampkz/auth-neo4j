@@ -8,8 +8,8 @@ import Config from '../../../src/config/config';
 describe(`405 Route Tests`, () => {
 	let app: Express;
 
-	beforeAll(async () => {
-		app = await authNeo4j();
+	beforeAll(() => {
+		app = authNeo4j();
 	});
 
 	beforeEach(() => {

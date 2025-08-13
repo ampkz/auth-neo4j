@@ -13,8 +13,8 @@ import Config from '../../../src/config/config';
 describe(`Get Users Route Tests`, () => {
 	let app: Express;
 
-	beforeAll(async () => {
-		app = await authNeo4j();
+	beforeAll(() => {
+		app = authNeo4j();
 	});
 
 	beforeEach(() => {

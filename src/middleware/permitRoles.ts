@@ -18,7 +18,7 @@ export function permitRoles(...rolesPermitted: Array<Auth>) {
 			return res.status(403).end();
 		}
 
-		if (rolesPermitted.includes(svr.user.auth) || (svr.user.id && svr.user.id === req.params.userId && rolesPermitted.includes(Auth.SELF))) {
+		if (rolesPermitted.includes(svr.user.auth) || (svr.user.id && svr.user.id === req.params.id && rolesPermitted.includes(Auth.SELF))) {
 			return next();
 		}
 

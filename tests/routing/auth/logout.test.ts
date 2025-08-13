@@ -13,8 +13,8 @@ import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 describe(`Logout Route Tests`, () => {
 	let app: Express;
 
-	beforeAll(async () => {
-		app = await authNeo4j();
+	beforeAll(() => {
+		app = authNeo4j();
 	});
 
 	beforeEach(() => {

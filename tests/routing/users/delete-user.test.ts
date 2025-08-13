@@ -13,15 +13,15 @@ import Config from '../../../src/config/config';
 describe(`Delete User Route Tests`, () => {
 	let app: Express;
 
-	beforeAll(async () => {
-		app = await authNeo4j();
+	beforeAll(() => {
+		app = authNeo4j();
 	});
 
 	beforeEach(() => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${Config.USER_URI}/:userId should send 403 status if the session couldn't be validated`, async () => {
+	test(`${Config.USER_URI}/:id should send 403 status if the session couldn't be validated`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -33,11 +33,11 @@ describe(`Delete User Route Tests`, () => {
 		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 401 status without token cookie`, async () => {
+	test(`${Config.USER_URI}/:id should send 401 status without token cookie`, async () => {
 		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 422 status if no user was deleted`, async () => {
+	test(`${Config.USER_URI}/:id should send 422 status if no user was deleted`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -52,7 +52,7 @@ describe(`Delete User Route Tests`, () => {
 		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(422);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 401 status as contributor`, async () => {
+	test(`${Config.USER_URI}/:id should send 401 status as contributor`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -64,7 +64,7 @@ describe(`Delete User Route Tests`, () => {
 		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 204 status if user was deleted as admin`, async () => {
+	test(`${Config.USER_URI}/:id should send 204 status if user was deleted as admin`, async () => {
 		const token = generateSessionToken(),
 			email = faker.internet.email(),
 			id = faker.database.mongodbObjectId(),
@@ -87,7 +87,7 @@ describe(`Delete User Route Tests`, () => {
 		await request(app).delete(`${Config.USER_URI}/${user.id}`).set('Cookie', `token=${token}`).expect(204);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 204 status if user was deleted as self contributor`, async () => {
+	test(`${Config.USER_URI}/:id should send 204 status if user was deleted as self contributor`, async () => {
 		const token = generateSessionToken(),
 			id = faker.database.mongodbObjectId();
 

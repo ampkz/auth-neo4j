@@ -14,8 +14,8 @@ import Config from '../../../src/config/config';
 describe(`Create User Route Tests`, () => {
 	let app: Express;
 
-	beforeAll(async () => {
-		app = await authNeo4j();
+	beforeAll(() => {
+		app = authNeo4j();
 	});
 
 	beforeEach(() => {

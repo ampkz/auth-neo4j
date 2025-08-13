@@ -14,15 +14,15 @@ import Config from '../../../src/config/config';
 describe(`Update User Route Tests`, () => {
 	let app: Express;
 
-	beforeAll(async () => {
-		app = await authNeo4j();
+	beforeAll(() => {
+		app = authNeo4j();
 	});
 
 	beforeEach(() => {
 		jest.restoreAllMocks();
 	});
 
-	test(`${Config.USER_URI}/:userId should send 403 status if the session couldn't be validated`, async () => {
+	test(`${Config.USER_URI}/:id should send 403 status if the session couldn't be validated`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -34,7 +34,7 @@ describe(`Update User Route Tests`, () => {
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 401 status with contributor auth`, async () => {
+	test(`${Config.USER_URI}/:id should send 401 status with contributor auth`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -50,7 +50,7 @@ describe(`Update User Route Tests`, () => {
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 400 status with invalid updatedAuth type`, async () => {
+	test(`${Config.USER_URI}/:id should send 400 status with invalid updatedAuth type`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -70,7 +70,7 @@ describe(`Update User Route Tests`, () => {
 			});
 	});
 
-	test(`${Config.USER_URI}/:userId should send 404 status if no user was found`, async () => {
+	test(`${Config.USER_URI}/:id should send 404 status if no user was found`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -85,7 +85,7 @@ describe(`Update User Route Tests`, () => {
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).send({}).expect(404);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 403 status if a contributor is trying to escalate their role to admin`, async () => {
+	test(`${Config.USER_URI}/:id should send 403 status if a contributor is trying to escalate their role to admin`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -104,7 +104,7 @@ describe(`Update User Route Tests`, () => {
 			.expect(403);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 422 status if no user was updated`, async () => {
+	test(`${Config.USER_URI}/:id should send 422 status if no user was updated`, async () => {
 		const token = generateSessionToken();
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
@@ -122,7 +122,7 @@ describe(`Update User Route Tests`, () => {
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).send({}).expect(422);
 	});
 
-	test(`${Config.USER_URI}/:userId should send 200 status with updated user on a successful update as admin`, async () => {
+	test(`${Config.USER_URI}/:id should send 200 status with updated user on a successful update as admin`, async () => {
 		const token = generateSessionToken(),
 			auth = Auth.CONTRIBUTOR,
 			email = faker.internet.email(),
@@ -161,7 +161,7 @@ describe(`Update User Route Tests`, () => {
 			});
 	});
 
-	test(`${Config.USER_URI}/:userId should send 200 status with updated user on a successful update as self contributor`, async () => {
+	test(`${Config.USER_URI}/:id should send 200 status with updated user on a successful update as self contributor`, async () => {
 		const token = generateSessionToken(),
 			auth = Auth.CONTRIBUTOR,
 			email = faker.internet.email(),
