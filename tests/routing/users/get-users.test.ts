@@ -30,7 +30,7 @@ describe(`Get Users Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date() },
+			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
 			user: { id: '', email: '', auth: Auth.ADMIN },
 		});
 
@@ -69,7 +69,7 @@ describe(`Get Users Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date() },
+			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
 			user: { id: '', email: '', auth: Auth.CONTRIBUTOR },
 		});
 

@@ -27,17 +27,21 @@ describe(`CRUD Session Tests`, () => {
 
 	test(`createSession should create a session`, async () => {
 		const token: string = generateSessionToken();
-		const session: Session = (await createSession(token, user.email)) as Session;
+		const host: string = faker.internet.ip();
+		const userAgent: string = faker.internet.userAgent();
+		const session: Session = (await createSession(token, user.email, host, userAgent)) as Session;
 
 		expect(session).toBeDefined();
 		expect(session.id).toEqual(hashToken(token));
 		expect(session.userID).toEqual(user.id);
+		expect(session.host).toEqual(host);
+		expect(session.userAgent).toEqual(userAgent);
 		expect(session.expiresAt).toBeDefined();
 	});
 
 	test(`createSession should return undefined if no user was found`, async () => {
 		const token: string = generateSessionToken();
-		const session: Session | undefined = await createSession(token, faker.internet.email());
+		const session: Session | undefined = await createSession(token, faker.internet.email(), '', '');
 
 		expect(session).toBeUndefined();
 	});
@@ -59,12 +63,14 @@ describe(`CRUD Session Tests`, () => {
 
 		const token: string = generateSessionToken();
 
-		await expect(createSession(token, email)).rejects.toBeDefined();
+		await expect(createSession(token, email, '', '')).rejects.toBeDefined();
 	});
 
 	test(`validateSession should validate an existing session`, async () => {
 		const token: string = generateSessionToken();
-		const session: Session = (await createSession(token, email)) as Session;
+		const host: string = faker.internet.ip();
+		const userAgent: string = faker.internet.userAgent();
+		const session: Session = (await createSession(token, email, host, userAgent)) as Session;
 
 		const svr: SessionValidationResult = await validateSessionToken(token);
 
@@ -73,12 +79,16 @@ describe(`CRUD Session Tests`, () => {
 		expect(svr.session?.id).toEqual(session.id);
 		expect(svr.session?.userID).toEqual(user.id);
 		expect(svr.session?.expiresAt).toEqual(session.expiresAt);
+		expect(svr.session?.host).toEqual(host);
+		expect(svr.session?.userAgent).toEqual(userAgent);
 		expect(svr.user).toEqual(user);
 	});
 
 	test(`validateSession should invalidate an expired session`, async () => {
 		const token: string = generateSessionToken();
-		const session: Session = (await createSession(token, email)) as Session;
+		const host: string = faker.internet.ip();
+		const userAgent: string = faker.internet.userAgent();
+		const session: Session = (await createSession(token, email, host, userAgent)) as Session;
 
 		const mockRecord = {
 			get: (key: string) => {
@@ -149,7 +159,7 @@ describe(`CRUD Session Tests`, () => {
 
 	test(`invalidateSession should invalidate a session`, async () => {
 		const token: string = generateSessionToken();
-		const session: Session = (await createSession(token, email)) as Session;
+		const session: Session = (await createSession(token, email, '', '')) as Session;
 
 		await invalidateSession(session.id);
 
@@ -179,10 +189,10 @@ describe(`CRUD Session Tests`, () => {
 
 	test(`invalidateAllSessions should invalidate all sessions`, async () => {
 		const tokenOne: string = generateSessionToken();
-		await createSession(tokenOne, email);
+		await createSession(tokenOne, email, '', '');
 
 		const tokenTwo: string = generateSessionToken();
-		await createSession(tokenTwo, email);
+		await createSession(tokenTwo, email, '', '');
 
 		await invalidateAllSessions(email);
 

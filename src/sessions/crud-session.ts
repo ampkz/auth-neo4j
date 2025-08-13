@@ -15,7 +15,7 @@ export enum Errors {
 	COULD_NOT_INVALIDATE_ALL_SESSIONS = 'There was an error invalidating all sessions',
 }
 
-export async function createSession(token: string, email: string): Promise<Session | undefined> {
+export async function createSession(token: string, email: string, host: string, userAgent: string): Promise<Session | undefined> {
 	const sessionId: string = hashToken(token);
 	const expiresAt: Date = new Date();
 	expiresAt.setDate(expiresAt.getDate() + Config.SESSION_EXPIRATION);
@@ -27,8 +27,8 @@ export async function createSession(token: string, email: string): Promise<Sessi
 
 	try {
 		match = await neoSession.run(
-			`MATCH (u:User {email: $email}) CREATE (u)-[:HAS_SESSION {sessionId: $sessionId}]->(s:Session {expiresAt: $expiresAt}) RETURN u`,
-			{ email, sessionId, expiresAt: expiresAt.toISOString() }
+			`MATCH (u:User {email: $email}) CREATE (u)-[:HAS_SESSION {sessionId: $sessionId}]->(s:Session {expiresAt: $expiresAt, host: $host, userAgent: $userAgent}) RETURN u, s`,
+			{ email, sessionId, expiresAt: expiresAt.toISOString(), host, userAgent }
 		);
 	} catch (error) {
 		await neoSession.close();
@@ -45,12 +45,11 @@ export async function createSession(token: string, email: string): Promise<Sessi
 	}
 
 	const user: User = new User(match.records[0].get('u').properties);
+	const session: Session = match.records[0].get('s').properties;
 
-	const session: Session = {
-		id: sessionId,
-		userID: user.id as string,
-		expiresAt,
-	};
+	session.id = sessionId;
+	session.userID = user.id as string;
+	session.expiresAt = expiresAt;
 
 	return session;
 }
@@ -89,7 +88,6 @@ export async function validateSessionToken(token?: string): Promise<SessionValid
 	session.userID = user.id as string;
 	session.expiresAt = new Date(session.expiresAt);
 
-	//TODO invalidate/update based on time
 	if (Date.now() >= session.expiresAt.getTime()) {
 		await invalidateSession(session.id);
 		return { session: null, user: null };

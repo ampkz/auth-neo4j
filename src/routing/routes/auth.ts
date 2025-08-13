@@ -32,9 +32,13 @@ export async function login(req: Request, res: Response) {
 		return sendStatus401(res);
 	}
 
+	/*istanbul ignore next line*/
+	const host = req.headers['host'] || '';
+	const userAgent = req.headers['user-agent'] || '';
+
 	const token: string = generateSessionToken();
 
-	await createSession(token, email);
+	await createSession(token, email, host, userAgent);
 
 	return res
 		.status(200)

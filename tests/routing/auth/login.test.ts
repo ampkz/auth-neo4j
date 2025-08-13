@@ -13,8 +13,8 @@ import Config from '../../../src/config/config';
 describe(`Login Route Tests`, () => {
 	let app: Express;
 
-	beforeAll(async () => {
-		app = await authNeo4j();
+	beforeAll(() => {
+		app = authNeo4j();
 	});
 
 	beforeEach(() => {
@@ -92,7 +92,7 @@ describe(`Login Route Tests`, () => {
 		checkPasswordSpy.mockResolvedValueOnce(user);
 
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
-		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date() });
+		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' });
 
 		await request(app)
 			.post(Config.LOGIN_URI)
