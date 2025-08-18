@@ -10,9 +10,9 @@ import { faker } from '@faker-js/faker';
 
 import Config from '../../../src/config/config';
 
-import logger from '../../../src/api/utils/logging/logger';
+import logger from '../../../src/api/utils/logger';
 
-jest.mock('../../../src/api/utils/logging/logger');
+jest.mock('../../../src/api/utils/logger');
 
 describe(`Delete User Route Tests`, () => {
 	let app: Express;

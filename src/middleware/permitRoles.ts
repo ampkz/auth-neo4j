@@ -3,7 +3,7 @@ import { Auth } from '../auth/auth';
 import { sendStatus401 } from './statusCodes';
 import { SessionValidationResult } from '../sessions/session';
 import { validateSessionToken } from '../sessions/crud-session';
-import logger from '../api/utils/logging/logger';
+import logger from '../api/utils/logger';
 
 export function permitRoles(...rolesPermitted: Array<Auth>) {
 	return async (req: Request, res: Response, next: NextFunction) => {

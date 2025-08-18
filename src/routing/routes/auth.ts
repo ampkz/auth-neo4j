@@ -14,7 +14,7 @@ import {
 } from '../../sessions/crud-session';
 
 import Config from '../../config/config';
-import logger from '../../api/utils/logging/logger';
+import logger from '../../api/utils/logger';
 
 export async function login(req: Request, res: Response) {
 	const { email, password } = req.body;

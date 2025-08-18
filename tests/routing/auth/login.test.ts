@@ -10,9 +10,9 @@ import { Auth } from '../../../src/auth/auth';
 
 import Config from '../../../src/config/config';
 
-import logger from '../../../src/api/utils/logging/logger';
+import logger from '../../../src/api/utils/logger';
 
-jest.mock('../../../src/api/utils/logging/logger');
+jest.mock('../../../src/api/utils/logger');
 
 describe(`Login Route Tests`, () => {
 	let app: Express;

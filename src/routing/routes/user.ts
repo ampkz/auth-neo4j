@@ -9,7 +9,7 @@ import {
 } from '../../users/crud-user';
 import { FieldError, FieldErrors, RoutingErrors } from '../../errors/errors';
 import { isRoleEscalation, isValidAuth } from '../../auth/auth';
-import logger from '../../api/utils/logging/logger';
+import logger from '../../api/utils/logger';
 
 export async function getUsers(req: Request, res: Response) {
 	/*istanbul ignore next line*/

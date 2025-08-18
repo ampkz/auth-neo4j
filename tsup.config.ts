@@ -5,6 +5,7 @@ export default defineConfig({
 		'src/index.ts',
 		'src/api/utils/db.ts',
 		'src/api/utils/session.ts',
+		'src/api/utils/logger.ts',
 		'src/sessions/session.ts',
 		'src/auth/auth.ts',
 		'src/users/user.ts',

@@ -10,9 +10,9 @@ import { Auth } from '../../../src/auth/auth';
 import Config from '../../../src/config/config';
 import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 
-import logger from '../../../src/api/utils/logging/logger';
+import logger from '../../../src/api/utils/logger';
 
-jest.mock('../../../src/api/utils/logging/logger');
+jest.mock('../../../src/api/utils/logger');
 
 describe(`Logout Route Tests`, () => {
 	let app: Express;
