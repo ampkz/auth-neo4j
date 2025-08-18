@@ -10,6 +10,9 @@ import { faker } from '@faker-js/faker';
 import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 
 import Config from '../../../src/config/config';
+import logger from '../../../src/api/utils/logging/logger';
+
+jest.mock('../../../src/api/utils/logging/logger');
 
 describe(`Update User Route Tests`, () => {
 	let app: Express;
@@ -32,6 +35,8 @@ describe(`Update User Route Tests`, () => {
 		});
 
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 401 status with contributor auth`, async () => {
@@ -44,10 +49,13 @@ describe(`Update User Route Tests`, () => {
 		});
 
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI} should send 401 status without token cookie`, async () => {
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 400 status with invalid updatedAuth type`, async () => {
@@ -68,6 +76,8 @@ describe(`Update User Route Tests`, () => {
 				expect(response.body.message).toBe(RoutingErrors.INVALID_REQUEST);
 				expect(response.body.data).toContainEqual({ field: 'auth', message: FieldError.INVALID_AUTH });
 			});
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 404 status if no user was found`, async () => {
@@ -83,6 +93,8 @@ describe(`Update User Route Tests`, () => {
 		getUserSpy.mockResolvedValue(undefined);
 
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).send({}).expect(404);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 403 status if a contributor is trying to escalate their role to admin`, async () => {
@@ -102,6 +114,8 @@ describe(`Update User Route Tests`, () => {
 			.set('Cookie', `token=${token}`)
 			.send({ auth: Auth.ADMIN })
 			.expect(403);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 422 status if no user was updated`, async () => {
@@ -120,6 +134,8 @@ describe(`Update User Route Tests`, () => {
 		updateUserSpy.mockResolvedValue(undefined);
 
 		await request(app).patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).send({}).expect(422);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 200 status with updated user on a successful update as admin`, async () => {
@@ -159,6 +175,8 @@ describe(`Update User Route Tests`, () => {
 			.then(response => {
 				expect(response.body).toEqual(updatedUser);
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 200 status with updated user on a successful update as self contributor`, async () => {
@@ -200,5 +218,7 @@ describe(`Update User Route Tests`, () => {
 			.then(response => {
 				expect(response.body).toEqual(updatedUser);
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 });

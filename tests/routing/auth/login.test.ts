@@ -10,6 +10,10 @@ import { Auth } from '../../../src/auth/auth';
 
 import Config from '../../../src/config/config';
 
+import logger from '../../../src/api/utils/logging/logger';
+
+jest.mock('../../../src/api/utils/logging/logger');
+
 describe(`Login Route Tests`, () => {
 	let app: Express;
 
@@ -74,13 +78,17 @@ describe(`Login Route Tests`, () => {
 		const checkPasswordSpy = jest.spyOn(pwd, 'checkPassword');
 		checkPasswordSpy.mockResolvedValueOnce(undefined);
 
+		const email = faker.internet.email();
+
 		await request(app)
 			.post(Config.LOGIN_URI)
-			.send({ email: faker.internet.email(), password: faker.internet.password() })
+			.send({ email, password: faker.internet.password() })
 			.expect(401)
 			.then(response => {
 				expect(response.headers['www-authenticate']).toBe(`xBasic realm="${Config.AUTH_REALM}"`);
 			});
+
+		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining(`Unauthorized access attempt for email: ${email}`));
 	});
 
 	test(`${Config.LOGIN_URI} should send 200 status with userId and session cookie using correct password`, async () => {
@@ -106,6 +114,8 @@ describe(`Login Route Tests`, () => {
 				expect(response.header['set-cookie']).toBeDefined();
 				expect(response.header['set-cookie'][0]).toContain('token');
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 
 	test(`${Config.LOGIN_URI} should invalidate an existing session before creating a new session`, async () => {
@@ -134,5 +144,7 @@ describe(`Login Route Tests`, () => {
 				expect(response.header['set-cookie']).toBeDefined();
 				expect(response.header['set-cookie'][0]).toContain('token');
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 });

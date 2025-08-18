@@ -9,6 +9,9 @@ import { User } from '../../../src/users/user';
 import { faker } from '@faker-js/faker';
 
 import Config from '../../../src/config/config';
+import logger from '../../../src/api/utils/logging/logger';
+
+jest.mock('../../../src/api/utils/logging/logger');
 
 describe(`Get User Route Tests`, () => {
 	let app: Express;
@@ -43,6 +46,8 @@ describe(`Get User Route Tests`, () => {
 			.then(response => {
 				expect(response.body).toEqual(user);
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 404 status if no user was found on GET as admin`, async () => {
@@ -59,9 +64,11 @@ describe(`Get User Route Tests`, () => {
 		getUserSpy.mockResolvedValueOnce(undefined);
 
 		await request(app).get(`${Config.USER_URI}/${id}`).set('Cookie', `token=${token}`).expect(404);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
-	test(`${Config.USER_URI}/:id should send 200 status with a user on GET as self contirbutor`, async () => {
+	test(`${Config.USER_URI}/:id should send 200 status with a user on GET as self contributor`, async () => {
 		const token = generateSessionToken(),
 			id = faker.database.mongodbObjectId();
 
@@ -83,10 +90,13 @@ describe(`Get User Route Tests`, () => {
 			.then(response => {
 				expect(response.body).toEqual(user);
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 401 status without token cookie`, async () => {
 		await request(app).get(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 403 status if the session couldn't be validated`, async () => {
@@ -99,6 +109,7 @@ describe(`Get User Route Tests`, () => {
 		});
 
 		await request(app).get(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 401 status as non-self contributor`, async () => {
@@ -111,5 +122,6 @@ describe(`Get User Route Tests`, () => {
 		});
 
 		await request(app).get(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
+		expect(logger.warn).toHaveBeenCalled();
 	});
 });

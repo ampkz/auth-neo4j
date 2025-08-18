@@ -14,9 +14,13 @@ import {
 } from '../../sessions/crud-session';
 
 import Config from '../../config/config';
+import logger from '../../api/utils/logging/logger';
 
 export async function login(req: Request, res: Response) {
 	const { email, password } = req.body;
+	/*istanbul ignore next line*/
+	const host = req.headers['host'] || '';
+	const userAgent = req.headers['user-agent'] || '';
 
 	const required: FieldErrors = new FieldErrors(RoutingErrors.INVALID_REQUEST);
 
@@ -30,12 +34,9 @@ export async function login(req: Request, res: Response) {
 	const user: User | undefined = await checkPassword(email, password);
 
 	if (user === undefined) {
+		logger.warn(`Unauthorized access attempt for email: ${email} from host: ${host} with user-agent: ${userAgent}`);
 		return sendStatus401(res);
 	}
-
-	/*istanbul ignore next line*/
-	const host = req.headers['host'] || '';
-	const userAgent = req.headers['user-agent'] || '';
 
 	const existingSessionId = await hasSession(email, host, userAgent);
 
@@ -44,6 +45,8 @@ export async function login(req: Request, res: Response) {
 	const token: string = generateSessionToken();
 
 	await createSession(token, email, host, userAgent);
+
+	logger.info(`User ${email} logged in from host: ${host} with user-agent: ${userAgent}`);
 
 	return res
 		.status(200)
@@ -54,6 +57,9 @@ export async function login(req: Request, res: Response) {
 
 export async function logout(req: Request, res: Response) {
 	const token = req.cookies.token;
+	/*istanbul ignore next line*/
+	const host = req.headers['host'] || '';
+	const userAgent = req.headers['user-agent'] || '';
 
 	if (!token) {
 		return res.status(204).end();
@@ -63,6 +69,7 @@ export async function logout(req: Request, res: Response) {
 
 	if (svr.session) {
 		await invalidateSession(svr.session.id);
+		logger.info(`User ${svr.session.userID} logged out from host: ${host} with user-agent: ${userAgent}`);
 	}
 
 	return res.status(204).clearCookie('token').end();
@@ -70,8 +77,12 @@ export async function logout(req: Request, res: Response) {
 
 export async function invalidateAllSessions(req: Request, res: Response) {
 	const token = req.cookies.token;
+	/*istanbul ignore next line*/
+	const host = req.headers['host'] || '';
+	const userAgent = req.headers['user-agent'] || '';
 
 	if (!token) {
+		logger.warn(`Unauthorized access attempt to invalidate all sessions from host: ${host} with user-agent: ${userAgent}`);
 		return sendStatus401(res);
 	}
 
@@ -89,6 +100,7 @@ export async function invalidateAllSessions(req: Request, res: Response) {
 
 	if (svr.session) {
 		await sessionInvalidateAll(email);
+		logger.info(`All sessions for user ${email} invalidated from host: ${host} with user-agent: ${userAgent}`);
 	}
 
 	return res.status(204).clearCookie('token').end();

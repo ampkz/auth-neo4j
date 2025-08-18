@@ -10,6 +10,10 @@ import { faker } from '@faker-js/faker';
 
 import Config from '../../../src/config/config';
 
+import logger from '../../../src/api/utils/logging/logger';
+
+jest.mock('../../../src/api/utils/logging/logger');
+
 describe(`Delete User Route Tests`, () => {
 	let app: Express;
 
@@ -31,10 +35,14 @@ describe(`Delete User Route Tests`, () => {
 		});
 
 		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(403);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 401 status without token cookie`, async () => {
 		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).expect(401);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 422 status if no user was deleted`, async () => {
@@ -50,6 +58,8 @@ describe(`Delete User Route Tests`, () => {
 		deleteUserSpy.mockResolvedValue(undefined);
 
 		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(422);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 401 status as contributor`, async () => {
@@ -62,6 +72,8 @@ describe(`Delete User Route Tests`, () => {
 		});
 
 		await request(app).delete(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`).set('Cookie', `token=${token}`).expect(401);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 204 status if user was deleted as admin`, async () => {
@@ -85,6 +97,8 @@ describe(`Delete User Route Tests`, () => {
 		deleteUserSpy.mockResolvedValue(user);
 
 		await request(app).delete(`${Config.USER_URI}/${user.id}`).set('Cookie', `token=${token}`).expect(204);
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 204 status if user was deleted as self contributor`, async () => {
@@ -101,5 +115,7 @@ describe(`Delete User Route Tests`, () => {
 		deleteUserSpy.mockResolvedValue(new User({ email: faker.internet.email(), id, auth: Auth.CONTRIBUTOR }));
 
 		await request(app).delete(`${Config.USER_URI}/${id}`).set('Cookie', `token=${token}`).expect(204);
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 });

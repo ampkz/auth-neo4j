@@ -11,6 +11,10 @@ import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 
 import Config from '../../../src/config/config';
 
+import logger from '../../../src/api/utils/logging/logger';
+
+jest.mock('../../../src/api/utils/logging/logger');
+
 describe(`Create User Route Tests`, () => {
 	let app: Express;
 
@@ -32,6 +36,8 @@ describe(`Create User Route Tests`, () => {
 		});
 
 		await request(app).post(Config.USER_URI).set('Cookie', `token=${token}`).expect(403);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI} should send 401 status with contributor auth`, async () => {
@@ -44,10 +50,13 @@ describe(`Create User Route Tests`, () => {
 		});
 
 		await request(app).post(Config.USER_URI).set('Cookie', `token=${token}`).expect(401);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI} should send 401 status without token cookie`, async () => {
 		await request(app).post(Config.USER_URI).expect(401);
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI} should send 400 status on POST without email, auth, or password`, async () => {
@@ -109,6 +118,8 @@ describe(`Create User Route Tests`, () => {
 			.set('Cookie', `token=${token}`)
 			.send({ email: faker.internet.email(), auth: Auth.ADMIN, password: faker.internet.password() })
 			.expect(422);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI} should send 201 status with created user`, async () => {
@@ -140,5 +151,7 @@ describe(`Create User Route Tests`, () => {
 				expect(response.headers.location).toEqual(`/${user.id}`);
 				expect(response.body).toEqual(user);
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 });

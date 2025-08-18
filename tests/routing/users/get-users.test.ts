@@ -9,6 +9,9 @@ import { User } from '../../../src/users/user';
 import { faker } from '@faker-js/faker';
 
 import Config from '../../../src/config/config';
+import logger from '../../../src/api/utils/logging/logger';
+
+jest.mock('../../../src/api/utils/logging/logger');
 
 describe(`Get Users Route Tests`, () => {
 	let app: Express;
@@ -46,10 +49,13 @@ describe(`Get Users Route Tests`, () => {
 				expect(response.body).toContainEqual(userTwo);
 				expect(response.body).toContainEqual(userThree);
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI} should send 401 status without token cookie`, async () => {
 		await request(app).get(Config.USER_URI).expect(401);
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI} should send 403 status if the session couldn't be validated`, async () => {
@@ -62,6 +68,8 @@ describe(`Get Users Route Tests`, () => {
 		});
 
 		await request(app).get(Config.USER_URI).set('Cookie', `token=${token}`).expect(403);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI} should send 401 status with contributor auth`, async () => {
@@ -74,5 +82,7 @@ describe(`Get Users Route Tests`, () => {
 		});
 
 		await request(app).get(Config.USER_URI).set('Cookie', `token=${token}`).expect(401);
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 });

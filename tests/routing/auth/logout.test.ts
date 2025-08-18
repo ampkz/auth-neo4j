@@ -10,6 +10,10 @@ import { Auth } from '../../../src/auth/auth';
 import Config from '../../../src/config/config';
 import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 
+import logger from '../../../src/api/utils/logging/logger';
+
+jest.mock('../../../src/api/utils/logging/logger');
+
 describe(`Logout Route Tests`, () => {
 	let app: Express;
 
@@ -83,6 +87,8 @@ describe(`Logout Route Tests`, () => {
 				expect(response.body).toEqual({});
 				expect(response.header['set-cookie'][0]).toContain('token=;');
 			});
+
+		expect(logger.info).toHaveBeenCalledTimes(2);
 	});
 
 	test(`${Config.LOGOUT_URI} POST should send 401 status on POST without cookie`, async () => {
@@ -93,6 +99,8 @@ describe(`Logout Route Tests`, () => {
 			.then(response => {
 				expect(response.headers['www-authenticate']).toBe(`xBasic realm="${Config.AUTH_REALM}"`);
 			});
+
+		expect(logger.warn).toHaveBeenCalled();
 	});
 
 	test(`${Config.LOGOUT_URI} should send 400 status on POST without email`, async () => {
@@ -166,5 +174,7 @@ describe(`Logout Route Tests`, () => {
 				expect(response.body).toEqual({});
 				expect(response.header['set-cookie'][0]).toContain('token=;');
 			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 });
