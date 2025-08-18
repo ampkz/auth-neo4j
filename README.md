@@ -1,8 +1,10 @@
-# auth-neo4j
+# @ampkz/auth-neo4j
 
 Simple Express middleware for session and user management using Neo4j.
 
 ## Setup
+
+### Create/Modify .env
 
 Create (or modify) a `.env` file in your project's root directory with the following keys (see [below](#env-keys) for an explanation of the keys and the supplied default values):
 
@@ -23,7 +25,25 @@ USERS_DB=users.authneo4j
 
 Make sure your `.gitignore` file includes your `.env` file.
 
-## Example TypeScript Project
+### Initialize Database and Initial User (TypseScript Example)
+
+```js
+import { User } from '@ampkz/auth-neo4j/user';
+import { Auth } from '@ampkz/auth-neo4j/auth';
+import { initializeDB, initUser } from '@ampkz/auth-neo4j/db';
+
+async function initializeAuthNeo4j() {
+    await initializeDB();
+
+    const user: User = new User(email: 'your@email.com', auth: Auth.ADMIN);
+
+    await initUser(user, 'your password');
+}
+
+initializeAuthNeo4j();
+```
+
+### Use with Express
 
 ```js
 import authNeo4j from "@ampkz/auth-neo4j";
@@ -37,23 +57,23 @@ app.use(authNeo4j());
 app.listen(port, () => {
     console.log(`Example app listening on port ${port});
 });
-
 ```
 
-## Example CommonJS Project
+### (Optional) Configure the Logger
+
+This middleware uses [winston](https://www.npmjs.com/package/winston) as the logger and can be configured accordingly.
+
+For example:
 
 ```js
-const authNeo4j = require('auth-neo4j');
-const express = require('express');
+import logger from '@ampkz/auth-neo4j/logger';
+import { transports } from 'winston';
 
-const app = express();
-const port = 3000;
+// Remove the console transport
+logger.remove(logger.transports[0]);
 
-app.use(authNeo4j());
-
-app.listen(port, () => {
-	console.log(`Example app listening on port ${port}`);
-});
+// Add a file transport
+logger.add(new winston.transports.File({ filename: 'app.log' }));
 ```
 
 ## Server Requirements
