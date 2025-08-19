@@ -43,11 +43,11 @@ async function initializeAuthNeo4j() {
 initializeAuthNeo4j();
 ```
 
-### Use with Express
+### Integrate with Express
 
 ```js
-import authNeo4j from "@ampkz/auth-neo4j";
-import express from "express";
+import authNeo4j from '@ampkz/auth-neo4j';
+import express from 'express';
 
 const app = express();
 const port = 3000;
@@ -55,7 +55,7 @@ const port = 3000;
 app.use(authNeo4j());
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port});
+	console.log(`Example app listening on port ${port}`);
 });
 ```
 
