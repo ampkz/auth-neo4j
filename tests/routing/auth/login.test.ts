@@ -88,7 +88,7 @@ describe(`Login Route Tests`, () => {
 				expect(response.headers['www-authenticate']).toBe(`xBasic realm="${Config.AUTH_REALM}"`);
 			});
 
-		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining(`Unauthorized access attempt for email: ${email}`));
+		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining(`Unauthorized access attempt.`), expect.objectContaining({ email }));
 	});
 
 	test(`${Config.LOGIN_URI} should send 200 status with userId and session cookie using correct password`, async () => {

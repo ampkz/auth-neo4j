@@ -13,22 +13,23 @@ export function permitRoles(...rolesPermitted: Array<Auth>) {
 		const userAgent = req.headers['user-agent'] || '';
 
 		if (!token) {
-			logger.warn(`Unauthorized access attempt from host: ${host} with user-agent: ${userAgent}`);
+			logger.warn(`Unauthorized access attempt.`, { host, 'user-agent': userAgent });
 			return sendStatus401(res);
 		}
 
 		const svr: SessionValidationResult = await validateSessionToken(token);
 
 		if (!svr.user) {
-			logger.warn(`Invalid session token from host: ${host} with user-agent: ${userAgent}`);
+			logger.warn(`Invalid session token.`, { host, 'user-agent': userAgent });
 			return res.status(403).end();
 		}
 
 		if (rolesPermitted.includes(svr.user.auth) || (svr.user.id && svr.user.id === req.params.id && rolesPermitted.includes(Auth.SELF))) {
+			res.locals.authorizedUserEmail = svr.user.email;
 			return next();
 		}
 
-		logger.warn(`Unauthorized access attempt from host: ${host} with user-agent: ${userAgent}`);
+		logger.warn(`Unauthorized access attempt.`, { host, 'user-agent': userAgent });
 
 		return sendStatus401(res);
 	};

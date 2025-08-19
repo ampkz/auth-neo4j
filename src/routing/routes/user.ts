@@ -18,7 +18,9 @@ export async function getUsers(req: Request, res: Response) {
 
 	const users: Array<User> = await getAllUsers();
 
-	logger.info(`Retrieved ${users.length} users from host: ${host} with user-agent: ${userAgent}`);
+	const authorizedUserEmail = res.locals.authorizedUserEmail;
+
+	logger.info(`Retrieved ${users.length} users.`, { authorizedUserEmail, host, 'user-agent': userAgent });
 
 	return res.status(200).json(users);
 }
@@ -29,14 +31,16 @@ export async function getUser(req: Request, res: Response) {
 	const host = req.headers['host'] || '';
 	const userAgent = req.headers['user-agent'] || '';
 
+	const authorizedUserEmail = res.locals.authorizedUserEmail;
+
 	const user: User | undefined = await dbGetUser(id);
 
 	if (!user) {
-		logger.warn(`User with ID ${id} not found from host: ${host} with user-agent: ${userAgent}`);
+		logger.warn(`User not found.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
 		return res.status(404).end();
 	}
 
-	logger.info(`Retrieved user with ID ${id} from host: ${host} with user-agent: ${userAgent}`);
+	logger.info(`Retrieved user.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
 
 	return res.status(200).json(user).end();
 }
@@ -59,13 +63,15 @@ export async function createUser(req: Request, res: Response) {
 		return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
 	}
 
+	const authorizedUserEmail = res.locals.authorizedUserEmail;
+
 	const user: User | undefined = await dbCreateUser(new User({ email, auth, firstName, lastName, secondName }), password);
 
 	if (user) {
-		logger.info(`User with ID ${user.id} created with email: ${email} from host: ${host} with user-agent: ${userAgent}`);
+		logger.info(`User created successfully.`, { authorizedUserEmail, id: user.id, email, host, 'user-agent': userAgent });
 		return res.set('Location', `/${user.id}`).status(201).json(user).end();
 	} else {
-		logger.warn(`Failed to create user with email: ${email} from host: ${host} with user-agent: ${userAgent}`);
+		logger.warn(`Failed to create user.`, { authorizedUserEmail, email, host, 'user-agent': userAgent });
 		return res.status(422).end();
 	}
 }
@@ -76,13 +82,15 @@ export async function deleteUser(req: Request, res: Response) {
 	const host = req.headers['host'] || '';
 	const userAgent = req.headers['user-agent'] || '';
 
+	const authorizedUserEmail = res.locals.authorizedUserEmail;
+
 	const deletedUser: User | undefined = await dbDeleteUser(id);
 
 	if (deletedUser) {
-		logger.info(`User with ID ${id} deleted from host: ${host} with user-agent: ${userAgent}`);
+		logger.info(`User deleted successfully.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
 		return res.status(204).end();
 	} else {
-		logger.warn(`Failed to delete user with ID ${id} from host: ${host} with user-agent: ${userAgent}`);
+		logger.warn(`Failed to delete user.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
 		return res.status(422).end();
 	}
 }
@@ -109,15 +117,25 @@ export async function updateUser(req: Request, res: Response) {
 		return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
 	}
 
+	const authorizedUserEmail = res.locals.authorizedUserEmail;
+
 	const user: User | undefined = await dbGetUser(id);
 
 	if (!user) {
-		logger.warn(`User with ID ${id} not found from host: ${host} with user-agent: ${userAgent}`);
+		logger.warn(`User not found.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
 		return res.status(404).end();
 	}
 
 	if (isRoleEscalation(user.auth, updatedAuth)) {
-		logger.warn(`User with ID ${id} attempted role escalation from host: ${host} with user-agent: ${userAgent}`);
+		logger.warn(`User attempted role escalation.`, {
+			authorizedUserEmail,
+			id,
+			email: user.email,
+			auth: user.auth,
+			updatedAuth,
+			host,
+			'user-agent': userAgent,
+		});
 		return res.status(403).end();
 	}
 
@@ -131,11 +149,11 @@ export async function updateUser(req: Request, res: Response) {
 	});
 
 	if (!updatedUser) {
-		logger.warn(`Failed to update user with ID ${id} from host: ${host} with user-agent: ${userAgent}`);
+		logger.warn(`Failed to update user.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
 		return res.status(422).end();
 	}
 
-	logger.info(`User with ID ${id} updated from host: ${host} with user-agent: ${userAgent}`);
+	logger.info(`User updated successfully.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
 
 	return res.status(200).json(updatedUser).end();
 }

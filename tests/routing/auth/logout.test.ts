@@ -94,7 +94,7 @@ describe(`Logout Route Tests`, () => {
 	test(`${Config.LOGOUT_URI} POST should send 401 status on POST without cookie`, async () => {
 		await request(app)
 			.post(Config.LOGOUT_URI)
-			.send({})
+			.send({ email: faker.internet.email() })
 			.expect(401)
 			.then(response => {
 				expect(response.headers['www-authenticate']).toBe(`xBasic realm="${Config.AUTH_REALM}"`);

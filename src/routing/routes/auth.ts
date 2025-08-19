@@ -34,7 +34,7 @@ export async function login(req: Request, res: Response) {
 	const user: User | undefined = await checkPassword(email, password);
 
 	if (user === undefined) {
-		logger.warn(`Unauthorized access attempt for email: ${email} from host: ${host} with user-agent: ${userAgent}`);
+		logger.warn(`Unauthorized access attempt.`, { email, host, 'user-agent': userAgent });
 		return sendStatus401(res);
 	}
 
@@ -46,7 +46,7 @@ export async function login(req: Request, res: Response) {
 
 	await createSession(token, email, host, userAgent);
 
-	logger.info(`User ${email} logged in from host: ${host} with user-agent: ${userAgent}`);
+	logger.info(`Successful login`, { email, host, 'user-agent': userAgent });
 
 	return res
 		.status(200)
@@ -69,7 +69,7 @@ export async function logout(req: Request, res: Response) {
 
 	if (svr.session) {
 		await invalidateSession(svr.session.id);
-		logger.info(`User ${svr.session.userID} logged out from host: ${host} with user-agent: ${userAgent}`);
+		logger.info(`Session logged out.`, { userID: svr.session.userID, host, 'user-agent': userAgent });
 	}
 
 	return res.status(204).clearCookie('token').end();
@@ -81,11 +81,6 @@ export async function invalidateAllSessions(req: Request, res: Response) {
 	const host = req.headers['host'] || '';
 	const userAgent = req.headers['user-agent'] || '';
 
-	if (!token) {
-		logger.warn(`Unauthorized access attempt to invalidate all sessions from host: ${host} with user-agent: ${userAgent}`);
-		return sendStatus401(res);
-	}
-
 	const { email } = req.body;
 
 	const required: FieldErrors = new FieldErrors(RoutingErrors.INVALID_REQUEST);
@@ -96,11 +91,18 @@ export async function invalidateAllSessions(req: Request, res: Response) {
 		return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
 	}
 
+	if (!token) {
+		logger.warn(`Unauthorized access attempt to invalidate all sessions.`, { email, host, 'user-agent': userAgent });
+		return sendStatus401(res);
+	}
+
+	const authorizedUserEmail = res.locals.authorizedUserEmail;
+
 	const svr: SessionValidationResult = await validateSessionToken(token);
 
 	if (svr.session) {
 		await sessionInvalidateAll(email);
-		logger.info(`All sessions for user ${email} invalidated from host: ${host} with user-agent: ${userAgent}`);
+		logger.info(`All sessions invalidated.`, { authorizedUserEmail, email, host, 'user-agent': userAgent });
 	}
 
 	return res.status(204).clearCookie('token').end();
