@@ -1,6 +1,6 @@
 {
 	"name": "@ampkz/auth-neo4j",
-	"version": "0.9.3",
+	"version": "0.10.0",
 	"description": "Simple Express middleware for session and user management using Neo4j.",
 	"homepage": "https://github.com/ampkz/auth-neo4j#readme",
 	"bugs": {
@@ -128,12 +128,14 @@
 		"typescript": "^5.7.3",
 		"typescript-eslint": "^8.24.1"
 	},
+	"peerDependencies": {
+		"express": ">=5.1.0 <6.0.0",
+		"neo4j-driver": ">=5.28.0 <6.0.0",
+		"cookie-parser": ">=1.4.7 <2.0.0",
+		"dotenv": ">=17.2.1 <18.0.0",
+		"winston": ">=3.17.0 <4.0.0"
+	},
 	"dependencies": {
-		"bcrypt": "^6.0.0",
-		"cookie-parser": "^1.4.7",
-		"dotenv": "^17.2.1",
-		"express": "^5.1.0",
-		"neo4j-driver": "^5.28.0",
-		"winston": "^3.17.0"
+		"bcrypt": "^6.0.0"
 	}
 }
