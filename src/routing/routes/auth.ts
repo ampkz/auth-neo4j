@@ -51,7 +51,7 @@ export async function login(req: Request, res: Response) {
 	return res
 		.status(200)
 		.cookie(`token`, token, { httpOnly: true, maxAge: Config.COOKIE_EXPIRATION, sameSite: Config.SAME_SITE, secure: Config.SECURE })
-		.json({ id: user.id })
+		.json({ id: user.id, auth: user.auth })
 		.end();
 }
 

@@ -91,7 +91,7 @@ describe(`Login Route Tests`, () => {
 		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining(`Unauthorized access attempt.`), expect.objectContaining({ email }));
 	});
 
-	test(`${Config.LOGIN_URI} should send 200 status with userId and session cookie using correct password`, async () => {
+	test(`${Config.LOGIN_URI} should send 200 status with userId, user auth, and session cookie using correct password`, async () => {
 		const id = faker.database.mongodbObjectId();
 
 		const user = new User({ id, email: faker.internet.email(), auth: Auth.ADMIN });
@@ -110,7 +110,7 @@ describe(`Login Route Tests`, () => {
 			.send({ email: faker.internet.email(), password: faker.internet.password() })
 			.expect(200)
 			.then(response => {
-				expect(response.body).toEqual({ id });
+				expect(response.body).toEqual({ id, auth: user.auth });
 				expect(response.header['set-cookie']).toBeDefined();
 				expect(response.header['set-cookie'][0]).toContain('token');
 			});
@@ -120,8 +120,9 @@ describe(`Login Route Tests`, () => {
 
 	test(`${Config.LOGIN_URI} should invalidate an existing session before creating a new session`, async () => {
 		const id = faker.database.mongodbObjectId();
+		const auth = Auth.ADMIN;
 
-		const user = new User({ id, email: faker.internet.email(), auth: Auth.ADMIN });
+		const user = new User({ id, email: faker.internet.email(), auth });
 
 		const checkPasswordSpy = jest.spyOn(pwd, 'checkPassword');
 		checkPasswordSpy.mockResolvedValueOnce(user);
@@ -140,7 +141,7 @@ describe(`Login Route Tests`, () => {
 			.send({ email: faker.internet.email(), password: faker.internet.password() })
 			.expect(200)
 			.then(response => {
-				expect(response.body).toEqual({ id });
+				expect(response.body).toEqual({ id, auth });
 				expect(response.header['set-cookie']).toBeDefined();
 				expect(response.header['set-cookie'][0]).toContain('token');
 			});
