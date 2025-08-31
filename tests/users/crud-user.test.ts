@@ -161,9 +161,39 @@ describe(`CRUD User Test`, () => {
 			new User({
 				email: userUpdates.updatedEmail as string,
 				auth: userUpdates.updatedAuth as Auth,
-				firstName: userUpdates.updatedFirstName,
-				lastName: userUpdates.updatedLastName,
-				secondName: userUpdates.updatedSecondName,
+				firstName: userUpdates.updatedFirstName!,
+				lastName: userUpdates.updatedLastName!,
+				secondName: userUpdates.updatedSecondName!,
+				id: createdUser?.id,
+			})
+		);
+	});
+
+	test('update user should delete fields if null is passed for optional fields', async () => {
+		const user: User = new User({
+			email: faker.internet.email(),
+			auth: Auth.ADMIN,
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
+			secondName: faker.person.middleName(),
+		});
+
+		const userUpdates: UserUpdates = {
+			updatedAuth: Auth.CONTRIBUTOR,
+			updatedEmail: faker.internet.email(),
+			updatedFirstName: null,
+			updatedLastName: null,
+			updatedPassword: faker.internet.password(),
+			updatedSecondName: null,
+		};
+
+		const createdUser: User | undefined = await createUser(user, faker.internet.password());
+		const updatedUser: User | undefined = await updateUser(createdUser?.id as string, userUpdates);
+
+		expect(updatedUser).toEqual(
+			new User({
+				email: userUpdates.updatedEmail as string,
+				auth: userUpdates.updatedAuth as Auth,
 				id: createdUser?.id,
 			})
 		);

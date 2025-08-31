@@ -95,11 +95,15 @@ export async function updateUser(id: string, userUpdates: UserUpdates): Promise<
 		props.push(`u.password = $updatedPassword`);
 	}
 
-	if (userUpdates.updatedEmail) props.push(`u.email = $updatedEmail`);
-	if (userUpdates.updatedFirstName) props.push(`u.firstName = $updatedFirstName`);
-	if (userUpdates.updatedLastName) props.push(`u.lastName = $updatedLastName`);
-	if (userUpdates.updatedAuth) props.push(`u.auth = $updatedAuth`);
-	if (userUpdates.updatedSecondName) props.push(`u.secondName = $updatedSecondName`);
+	if (!!userUpdates.updatedEmail) props.push(`u.email = $updatedEmail`);
+	if (!!userUpdates.updatedFirstName) props.push(`u.firstName = $updatedFirstName`);
+	if (!!userUpdates.updatedLastName) props.push(`u.lastName = $updatedLastName`);
+	if (!!userUpdates.updatedAuth) props.push(`u.auth = $updatedAuth`);
+	if (!!userUpdates.updatedSecondName) props.push(`u.secondName = $updatedSecondName`);
+
+	if (userUpdates.updatedFirstName === null) props.push(`u.firstName = null`);
+	if (userUpdates.updatedLastName === null) props.push(`u.lastName = null`);
+	if (userUpdates.updatedSecondName === null) props.push(`u.secondName = null`);
 
 	const driver: Driver = await connect();
 	const session: Session = driver.session({ database: Config.USERS_DB });

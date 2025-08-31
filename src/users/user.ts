@@ -11,9 +11,9 @@ export interface IUser {
 
 export type UserUpdates = {
 	updatedEmail?: string;
-	updatedFirstName?: string;
-	updatedSecondName?: string;
-	updatedLastName?: string;
+	updatedFirstName?: string | null;
+	updatedSecondName?: string | null;
+	updatedLastName?: string | null;
 	updatedAuth?: string;
 	updatedPassword?: string;
 };
