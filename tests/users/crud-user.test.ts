@@ -4,6 +4,7 @@ import { UserUpdates, User } from '../../src/users/user';
 import { createUser, deleteUser, getAllUsers, getUser, updateUser } from '../../src/users/crud-user';
 import { Errors as CRUDUserErrors } from '../../src/users/user';
 import neo4j, { Driver } from 'neo4j-driver';
+import { checkPassword } from '../../src/users/pwd';
 
 describe(`CRUD User Test`, () => {
 	beforeEach(() => {
@@ -164,6 +165,32 @@ describe(`CRUD User Test`, () => {
 				firstName: userUpdates.updatedFirstName!,
 				lastName: userUpdates.updatedLastName!,
 				secondName: userUpdates.updatedSecondName!,
+				id: createdUser?.id,
+			})
+		);
+	});
+
+	test('update user should successfully update a password', async () => {
+		const user: User = new User({
+			email: faker.internet.email(),
+			auth: Auth.ADMIN,
+		});
+
+		const updatedPassword = faker.internet.password();
+
+		const userUpdates: UserUpdates = {
+			updatedPassword,
+		};
+
+		const createdUser: User | undefined = await createUser(user, faker.internet.password());
+		await updateUser(createdUser?.id as string, userUpdates);
+
+		const checkedUser = await checkPassword(user.email, updatedPassword);
+
+		expect(checkedUser).toEqual(
+			new User({
+				email: user.email,
+				auth: user.auth,
 				id: createdUser?.id,
 			})
 		);

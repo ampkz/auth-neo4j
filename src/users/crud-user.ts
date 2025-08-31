@@ -92,7 +92,7 @@ export async function updateUser(id: string, userUpdates: UserUpdates): Promise<
 
 	if (userUpdates.updatedPassword) {
 		userUpdates.updatedPassword = await bcrypt.hash(userUpdates.updatedPassword, Config.SALT_ROUNDS);
-		props.push(`u.password = $updatedPassword`);
+		props.push(`u.pwd = $updatedPassword`);
 	}
 
 	if (!!userUpdates.updatedEmail) props.push(`u.email = $updatedEmail`);
