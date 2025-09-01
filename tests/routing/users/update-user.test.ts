@@ -97,27 +97,6 @@ describe(`Update User Route Tests`, () => {
 		expect(logger.warn).toHaveBeenCalled();
 	});
 
-	test(`${Config.USER_URI}/:id should send 403 status if a contributor is trying to escalate their role to admin`, async () => {
-		const token = generateSessionToken();
-
-		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
-		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
-			user: { id: '', email: faker.internet.email(), auth: Auth.ADMIN },
-		});
-
-		const getUserSpy = jest.spyOn(crudUser, 'getUser');
-		getUserSpy.mockResolvedValue(new User({ email: faker.internet.email(), auth: Auth.CONTRIBUTOR }));
-
-		await request(app)
-			.patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
-			.set('Cookie', `token=${token}`)
-			.send({ auth: Auth.ADMIN })
-			.expect(403);
-
-		expect(logger.warn).toHaveBeenCalled();
-	});
-
 	test(`${Config.USER_URI}/:id should send 403 status if a user is trying to change their own auth role`, async () => {
 		const token = generateSessionToken();
 		const email = faker.internet.email();

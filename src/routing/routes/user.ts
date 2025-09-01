@@ -127,7 +127,7 @@ export async function updateUser(req: Request, res: Response) {
 		return res.status(404).end();
 	}
 
-	if (isRoleEscalation(user.auth, updatedAuth, authorizedUserEmail, user.email)) {
+	if (isRoleEscalation(authorizedUserEmail, user.email, authorizedUserAuth, updatedAuth)) {
 		logger.warn(`User attempted role escalation.`, {
 			authorizedUserEmail,
 			id,

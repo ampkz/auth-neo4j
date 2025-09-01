@@ -8,8 +8,13 @@ export function isValidAuth(auth: Auth): boolean {
 	return Object.values(Auth).includes(auth);
 }
 
-export function isRoleEscalation(currentAuth: Auth, updatedAuth: Auth, authorizedEmail: string, userEmail: string) {
-	if (userEmail !== authorizedEmail) return currentAuth === Auth.CONTRIBUTOR && updatedAuth === Auth.ADMIN;
+// export function isRoleEscalation(currentAuth: Auth, updatedAuth: Auth, authorizedEmail: string, userEmail: string) {
+// 	if (userEmail !== authorizedEmail) return currentAuth === Auth.CONTRIBUTOR && updatedAuth === Auth.ADMIN;
 
-	return authorizedEmail === userEmail;
+// 	return authorizedEmail === userEmail;
+// }
+
+export function isRoleEscalation(authorizedEmail: string, userEmail: string, authorizedAuth: Auth, updatedAuth: Auth) {
+	if (authorizedEmail === userEmail || (authorizedAuth === Auth.CONTRIBUTOR && updatedAuth === Auth.ADMIN)) return true;
+	return false;
 }
