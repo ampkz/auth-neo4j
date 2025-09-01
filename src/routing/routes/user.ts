@@ -118,6 +118,7 @@ export async function updateUser(req: Request, res: Response) {
 	}
 
 	const authorizedUserEmail = res.locals.authorizedUserEmail;
+	const authorizedUserAuth = res.locals.authorizedAuth;
 
 	const user: User | undefined = await dbGetUser(id);
 
@@ -126,7 +127,7 @@ export async function updateUser(req: Request, res: Response) {
 		return res.status(404).end();
 	}
 
-	if (isRoleEscalation(user.auth, updatedAuth)) {
+	if (isRoleEscalation(user.auth, updatedAuth, authorizedUserEmail, user.email)) {
 		logger.warn(`User attempted role escalation.`, {
 			authorizedUserEmail,
 			id,

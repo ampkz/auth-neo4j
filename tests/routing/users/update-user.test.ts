@@ -103,7 +103,7 @@ describe(`Update User Route Tests`, () => {
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
 			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
-			user: { id: '', email: '', auth: Auth.ADMIN },
+			user: { id: '', email: faker.internet.email(), auth: Auth.ADMIN },
 		});
 
 		const getUserSpy = jest.spyOn(crudUser, 'getUser');
@@ -116,6 +116,69 @@ describe(`Update User Route Tests`, () => {
 			.expect(403);
 
 		expect(logger.warn).toHaveBeenCalled();
+	});
+
+	test(`${Config.USER_URI}/:id should send 403 status if a user is trying to change their own auth role`, async () => {
+		const token = generateSessionToken();
+		const email = faker.internet.email();
+
+		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
+		validateSessionTokenSpy.mockResolvedValueOnce({
+			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			user: { id: '', email, auth: Auth.ADMIN },
+		});
+
+		const getUserSpy = jest.spyOn(crudUser, 'getUser');
+		getUserSpy.mockResolvedValue(new User({ email, auth: Auth.ADMIN }));
+
+		await request(app)
+			.patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
+			.set('Cookie', `token=${token}`)
+			.send({ auth: Auth.CONTRIBUTOR })
+			.expect(403);
+
+		expect(logger.warn).toHaveBeenCalled();
+	});
+
+	test(`${Config.USER_URI}/:id should allow a role escalation as an admin escalating another user`, async () => {
+		const token = generateSessionToken(),
+			auth = Auth.CONTRIBUTOR,
+			email = faker.internet.email(),
+			firstName = faker.person.firstName(),
+			lastName = faker.person.lastName(),
+			secondName = faker.person.middleName(),
+			password = faker.internet.password();
+
+		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
+		validateSessionTokenSpy.mockResolvedValueOnce({
+			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			user: { id: '', email: faker.internet.email(), auth: Auth.ADMIN },
+		});
+
+		const getUserSpy = jest.spyOn(crudUser, 'getUser');
+		getUserSpy.mockResolvedValue(new User({ email: faker.internet.email(), auth: Auth.CONTRIBUTOR }));
+
+		const updatedUser = new User({
+			auth,
+			email,
+			firstName,
+			lastName,
+			secondName,
+		});
+
+		const updateUserSpy = jest.spyOn(crudUser, 'updateUser');
+		updateUserSpy.mockResolvedValue(updatedUser);
+
+		await request(app)
+			.patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
+			.set('Cookie', `token=${token}`)
+			.send({ auth, email, firstName, password, lastName, secondName })
+			.expect(200)
+			.then(response => {
+				expect(response.body).toEqual(updatedUser);
+			});
+
+		expect(logger.info).toHaveBeenCalled();
 	});
 
 	test(`${Config.USER_URI}/:id should send 422 status if no user was updated`, async () => {

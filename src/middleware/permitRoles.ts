@@ -26,6 +26,7 @@ export function permitRoles(...rolesPermitted: Array<Auth>) {
 
 		if (rolesPermitted.includes(svr.user.auth) || (svr.user.id && svr.user.id === req.params.id && rolesPermitted.includes(Auth.SELF))) {
 			res.locals.authorizedUserEmail = svr.user.email;
+			res.locals.authorizedAuth = svr.user.auth;
 			return next();
 		}
 
