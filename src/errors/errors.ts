@@ -22,18 +22,26 @@ export enum RoutingErrors {
 	INVALID_REQUEST = 'Invalid Request',
 }
 
-export type FieldErrorJSON = { field: string; message: string };
+export type FieldErrorJSON = { field: string; message: string; validationErrors?: ValidationError[] };
+
+type ValidationError = {
+	validation: string;
+	message: string;
+};
 
 export class FieldError {
 	static REQUIRED: string = 'Required';
 	static INVALID_AUTH = 'Invalid Auth Type.';
+	static INVALID_PASSWORD = 'Invalid Password.';
 
 	private _field: string;
 	private _message: string;
+	private _validationErrors: Array<ValidationError> = [];
 
-	constructor(field: string, message: string) {
+	constructor(field: string, message: string, validationErrors: Array<ValidationError> = []) {
 		this._field = field;
 		this._message = message;
+		this._validationErrors = validationErrors;
 	}
 
 	getField(): string {
@@ -45,7 +53,11 @@ export class FieldError {
 	}
 
 	toJSON(): FieldErrorJSON {
-		return { field: this.getField(), message: this.getMessage() };
+		if (this._validationErrors.length > 0) {
+			return { field: this.getField(), message: this.getMessage(), validationErrors: this._validationErrors };
+		} else {
+			return { field: this.getField(), message: this.getMessage() };
+		}
 	}
 }
 

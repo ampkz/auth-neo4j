@@ -11,6 +11,7 @@ import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 
 import Config from '../../../src/config/config';
 import logger from '../../../src/api/utils/logger';
+import { isValidPassword } from '../../../src/api/utils/validators';
 
 jest.mock('../../../src/api/utils/logger');
 
@@ -75,6 +76,31 @@ describe(`Update User Route Tests`, () => {
 			.then(response => {
 				expect(response.body.message).toBe(RoutingErrors.INVALID_REQUEST);
 				expect(response.body.data).toContainEqual({ field: 'auth', message: FieldError.INVALID_AUTH });
+			});
+
+		expect(logger.warn).toHaveBeenCalled();
+	});
+
+	test(`${Config.USER_URI}/:id should send 400 status with invalid password`, async () => {
+		const token = generateSessionToken();
+
+		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
+		validateSessionTokenSpy.mockResolvedValueOnce({
+			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			user: { id: '', email: '', auth: Auth.ADMIN },
+		});
+
+		const invalidPassword = 'invalid password';
+		const validationErrors = isValidPassword(invalidPassword);
+
+		await request(app)
+			.patch(`${Config.USER_URI}/${faker.database.mongodbObjectId()}`)
+			.set('Cookie', `token=${token}`)
+			.send({ password: invalidPassword })
+			.expect(400)
+			.then(response => {
+				expect(response.body.message).toBe(RoutingErrors.INVALID_REQUEST);
+				expect(response.body.data).toContainEqual({ field: 'password', message: FieldError.INVALID_PASSWORD, validationErrors });
 			});
 
 		expect(logger.warn).toHaveBeenCalled();

@@ -12,6 +12,7 @@ import { FieldError, RoutingErrors } from '../../../src/errors/errors';
 import Config from '../../../src/config/config';
 
 import logger from '../../../src/api/utils/logger';
+import { isValidPassword } from '../../../src/api/utils/validators';
 
 jest.mock('../../../src/api/utils/logger');
 
@@ -101,6 +102,29 @@ describe(`Create User Route Tests`, () => {
 			});
 	});
 
+	test(`${Config.USER_URI} should send 400 status with invalid password`, async () => {
+		const token = generateSessionToken();
+
+		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
+		validateSessionTokenSpy.mockResolvedValueOnce({
+			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			user: { id: '', email: '', auth: Auth.ADMIN },
+		});
+
+		const invalidPassword = 'invalid password';
+		const validationErrors = isValidPassword(invalidPassword);
+
+		await request(app)
+			.post(Config.USER_URI)
+			.set('Cookie', `token=${token}`)
+			.send({ email: faker.internet.email(), auth: 'invalid auth', password: invalidPassword })
+			.expect(400)
+			.then(response => {
+				expect(response.body.message).toBe(RoutingErrors.INVALID_REQUEST);
+				expect(response.body.data).toContainEqual({ field: 'password', message: FieldError.INVALID_PASSWORD, validationErrors });
+			});
+	});
+
 	test(`${Config.USER_URI} should send 422 status if no user was created`, async () => {
 		const token = generateSessionToken();
 
@@ -145,7 +169,7 @@ describe(`Create User Route Tests`, () => {
 		await request(app)
 			.post(Config.USER_URI)
 			.set('Cookie', `token=${token}`)
-			.send({ email, auth, password: faker.internet.password() })
+			.send({ email, auth, password: 'Val1dPassw0rd!' })
 			.expect(201)
 			.then(response => {
 				expect(response.headers.location).toEqual(`/${user.id}`);

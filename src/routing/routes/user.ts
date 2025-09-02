@@ -10,6 +10,7 @@ import {
 import { FieldError, FieldErrors, RoutingErrors } from '../../errors/errors';
 import { isRoleEscalation, isValidAuth } from '../../auth/auth';
 import logger from '../../api/utils/logger';
+import { isValidPassword } from '../../api/utils/validators';
 
 export async function getUsers(req: Request, res: Response) {
 	/*istanbul ignore next line*/
@@ -58,6 +59,10 @@ export async function createUser(req: Request, res: Response) {
 	if (!auth) required.addFieldError(new FieldError(`auth`, FieldError.REQUIRED));
 	if (!password) required.addFieldError(new FieldError(`password`, FieldError.REQUIRED));
 	if (!isValidAuth(auth)) required.addFieldError(new FieldError(`auth`, FieldError.INVALID_AUTH));
+
+	const passwordValidation = isValidPassword(password);
+
+	if (passwordValidation.length > 0) required.addFieldError(new FieldError(`password`, FieldError.INVALID_PASSWORD, passwordValidation));
 
 	if (required.hasFieldErrors()) {
 		return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
@@ -112,6 +117,12 @@ export async function updateUser(req: Request, res: Response) {
 	const required: FieldErrors = new FieldErrors(RoutingErrors.INVALID_REQUEST);
 
 	if (updatedAuth && !isValidAuth(updatedAuth)) required.addFieldError(new FieldError(`auth`, FieldError.INVALID_AUTH));
+
+	if (updatedPassword) {
+		const passwordValidation = isValidPassword(updatedPassword);
+
+		if (passwordValidation.length > 0) required.addFieldError(new FieldError(`password`, FieldError.INVALID_PASSWORD, passwordValidation));
+	}
 
 	if (required.hasFieldErrors()) {
 		return res.status(required.getCode()).json({ message: required.message, data: required.getFields() }).end();
