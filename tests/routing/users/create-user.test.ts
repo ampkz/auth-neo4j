@@ -140,7 +140,7 @@ describe(`Create User Route Tests`, () => {
 		await request(app)
 			.post(Config.USER_URI)
 			.set('Cookie', `token=${token}`)
-			.send({ email: faker.internet.email(), auth: Auth.ADMIN, password: faker.internet.password() })
+			.send({ email: faker.internet.email(), auth: Auth.ADMIN, password: 'Val1dPassw0rd!' })
 			.expect(422);
 
 		expect(logger.warn).toHaveBeenCalled();
