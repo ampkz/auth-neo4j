@@ -45,7 +45,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id: '', email: '', auth: Auth.CONTRIBUTOR },
 		});
 
@@ -64,7 +64,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id: '', email: '', auth: Auth.ADMIN },
 		});
 
@@ -86,7 +86,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id: '', email: '', auth: Auth.ADMIN },
 		});
 
@@ -111,7 +111,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id: '', email: '', auth: Auth.ADMIN },
 		});
 
@@ -129,7 +129,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id: '', email, auth: Auth.ADMIN },
 		});
 
@@ -156,7 +156,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id: '', email: faker.internet.email(), auth: Auth.ADMIN },
 		});
 
@@ -191,7 +191,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id: '', email: '', auth: Auth.ADMIN },
 		});
 
@@ -217,7 +217,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id: '', email: '', auth: Auth.ADMIN },
 		});
 
@@ -259,7 +259,7 @@ describe(`Update User Route Tests`, () => {
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: { id, email: '', auth: Auth.CONTRIBUTOR },
 		});
 

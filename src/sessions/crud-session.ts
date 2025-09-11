@@ -16,7 +16,7 @@ export enum Errors {
 	COULD_NOT_INVALIDATE_ALL_SESSIONS = 'There was an error invalidating all sessions',
 }
 
-export async function createSession(token: string, email: string, host: string, userAgent: string): Promise<Session | undefined> {
+export async function createSession(token: string, email: string, clientIp: string, userAgent: string): Promise<Session | undefined> {
 	const sessionId: string = hashToken(token);
 	const expiresAt: Date = new Date();
 	expiresAt.setDate(expiresAt.getDate() + Config.SESSION_EXPIRATION);
@@ -28,8 +28,8 @@ export async function createSession(token: string, email: string, host: string, 
 
 	try {
 		match = await neoSession.run(
-			`MATCH (u:User {email: $email}) CREATE (u)-[:HAS_SESSION {sessionId: $sessionId}]->(s:Session {expiresAt: $expiresAt, host: $host, userAgent: $userAgent}) RETURN u, s`,
-			{ email, sessionId, expiresAt: expiresAt.toISOString(), host, userAgent }
+			`MATCH (u:User {email: $email}) CREATE (u)-[:HAS_SESSION {sessionId: $sessionId}]->(s:Session {expiresAt: $expiresAt, clientIp: $clientIp, userAgent: $userAgent}) RETURN u, s`,
+			{ email, sessionId, expiresAt: expiresAt.toISOString(), clientIp, userAgent }
 		);
 	} catch (error) {
 		await neoSession.close();
@@ -130,18 +130,21 @@ export async function invalidateAllSessions(email: string): Promise<void> {
 	await driver.close();
 }
 
-export async function hasSession(email: string, host: string, userAgent: string): Promise<string | undefined> {
+export async function hasSession(email: string, clientIp: string, userAgent: string): Promise<string | undefined> {
 	const driver = await connect();
 	const neoSession: NeoSession = driver.session({ database: Config.USERS_DB });
 
 	let match: RecordShape;
 
 	try {
-		match = await neoSession.run(`MATCH(:User {email: $email})-[r:HAS_SESSION]->(:Session {host: $host, userAgent: $userAgent}) RETURN r`, {
-			email,
-			host,
-			userAgent,
-		});
+		match = await neoSession.run(
+			`MATCH(:User {email: $email})-[r:HAS_SESSION]->(:Session {clientIp: $clientIp, userAgent: $userAgent}) RETURN r`,
+			{
+				email,
+				clientIp,
+				userAgent,
+			}
+		);
 	} catch (error) {
 		await neoSession.close();
 		await driver.close();

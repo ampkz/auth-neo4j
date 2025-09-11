@@ -4,7 +4,7 @@ export interface Session {
 	id: string;
 	userID: string;
 	expiresAt: Date;
-	host: string;
+	clientIp: string;
 	userAgent: string;
 }
 

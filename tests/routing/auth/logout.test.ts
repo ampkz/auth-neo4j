@@ -58,11 +58,11 @@ describe(`Logout Route Tests`, () => {
 		checkPasswordSpy.mockResolvedValueOnce(new User({ email: faker.internet.email(), auth: Auth.ADMIN }));
 
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
-		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' });
+		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' });
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: new User({ email: faker.internet.email(), auth: Auth.ADMIN }),
 		});
 
@@ -108,11 +108,11 @@ describe(`Logout Route Tests`, () => {
 		checkPasswordSpy.mockResolvedValueOnce(new User({ email: faker.internet.email(), auth: Auth.ADMIN }));
 
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
-		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' });
+		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' });
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: new User({ email: faker.internet.email(), auth: Auth.ADMIN }),
 		});
 
@@ -142,11 +142,11 @@ describe(`Logout Route Tests`, () => {
 		checkPasswordSpy.mockResolvedValueOnce(new User({ email: faker.internet.email(), auth: Auth.ADMIN }));
 
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
-		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' });
+		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' });
 
 		const validateSessionTokenSpy = jest.spyOn(crudSession, 'validateSessionToken');
 		validateSessionTokenSpy.mockResolvedValueOnce({
-			session: { id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' },
+			session: { id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' },
 			user: new User({ email: faker.internet.email(), auth: Auth.ADMIN }),
 		});
 

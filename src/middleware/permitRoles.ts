@@ -9,18 +9,18 @@ export function permitRoles(...rolesPermitted: Array<Auth>) {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		const token = req.cookies.token;
 		/*istanbul ignore next line*/
-		const host = req.headers['host'] || '';
+		const clientIp = req.ip || '';
 		const userAgent = req.headers['user-agent'] || '';
 
 		if (!token) {
-			logger.warn(`Unauthorized access attempt.`, { host, 'user-agent': userAgent });
+			logger.warn(`Unauthorized access attempt.`, { token, clientIp, 'user-agent': userAgent });
 			return sendStatus401(res);
 		}
 
 		const svr: SessionValidationResult = await validateSessionToken(token);
 
 		if (!svr.user) {
-			logger.warn(`Invalid session token.`, { host, 'user-agent': userAgent });
+			logger.warn(`Invalid session token.`, { token, clientIp, 'user-agent': userAgent });
 			return res.status(403).end();
 		}
 
@@ -30,7 +30,7 @@ export function permitRoles(...rolesPermitted: Array<Auth>) {
 			return next();
 		}
 
-		logger.warn(`Unauthorized access attempt.`, { host, 'user-agent': userAgent });
+		logger.warn(`Unauthorized access attempt.`, { token, clientIp, 'user-agent': userAgent });
 
 		return sendStatus401(res);
 	};

@@ -103,7 +103,7 @@ describe(`Login Route Tests`, () => {
 		hasSessionSpy.mockResolvedValue(undefined);
 
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
-		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' });
+		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' });
 
 		await request(app)
 			.post(Config.LOGIN_URI)
@@ -134,7 +134,7 @@ describe(`Login Route Tests`, () => {
 		invalidateSessionSpy.mockResolvedValue();
 
 		const createSessionSpy = jest.spyOn(crudSession, 'createSession');
-		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), host: '', userAgent: '' });
+		createSessionSpy.mockResolvedValueOnce({ id: '', userID: '', expiresAt: new Date(), clientIp: '', userAgent: '' });
 
 		await request(app)
 			.post(Config.LOGIN_URI)

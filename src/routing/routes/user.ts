@@ -14,14 +14,14 @@ import { isValidPassword } from '../../api/utils/validators';
 
 export async function getUsers(req: Request, res: Response) {
 	/*istanbul ignore next line*/
-	const host = req.headers['host'] || '';
+	const clientIp = req.ip || '';
 	const userAgent = req.headers['user-agent'] || '';
 
 	const users: Array<User> = await getAllUsers();
 
 	const authorizedUserEmail = res.locals.authorizedUserEmail;
 
-	logger.info(`Retrieved ${users.length} users.`, { authorizedUserEmail, host, 'user-agent': userAgent });
+	logger.info(`Retrieved ${users.length} users.`, { authorizedUserEmail, clientIp, 'user-agent': userAgent });
 
 	return res.status(200).json(users);
 }
@@ -29,7 +29,7 @@ export async function getUsers(req: Request, res: Response) {
 export async function getUser(req: Request, res: Response) {
 	const { id } = req.params;
 	/*istanbul ignore next line*/
-	const host = req.headers['host'] || '';
+	const clientIp = req.ip || '';
 	const userAgent = req.headers['user-agent'] || '';
 
 	const authorizedUserEmail = res.locals.authorizedUserEmail;
@@ -37,11 +37,11 @@ export async function getUser(req: Request, res: Response) {
 	const user: User | undefined = await dbGetUser(id);
 
 	if (!user) {
-		logger.warn(`User not found.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
+		logger.warn(`User not found.`, { authorizedUserEmail, id, clientIp, 'user-agent': userAgent });
 		return res.status(404).end();
 	}
 
-	logger.info(`Retrieved user.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
+	logger.info(`Retrieved user.`, { authorizedUserEmail, id, clientIp, 'user-agent': userAgent });
 
 	return res.status(200).json(user).end();
 }
@@ -50,7 +50,7 @@ export async function createUser(req: Request, res: Response) {
 	const { email, auth, firstName, lastName, secondName, password } = req.body;
 
 	/*istanbul ignore next line*/
-	const host = req.headers['host'] || '';
+	const clientIp = req.ip || '';
 	const userAgent = req.headers['user-agent'] || '';
 
 	const required: FieldErrors = new FieldErrors(RoutingErrors.INVALID_REQUEST);
@@ -73,10 +73,10 @@ export async function createUser(req: Request, res: Response) {
 	const user: User | undefined = await dbCreateUser(new User({ email, auth, firstName, lastName, secondName }), password);
 
 	if (user) {
-		logger.info(`User created successfully.`, { authorizedUserEmail, id: user.id, email, host, 'user-agent': userAgent });
+		logger.info(`User created successfully.`, { authorizedUserEmail, id: user.id, email, clientIp, 'user-agent': userAgent });
 		return res.set('Location', `/${user.id}`).status(201).json(user).end();
 	} else {
-		logger.warn(`Failed to create user.`, { authorizedUserEmail, email, host, 'user-agent': userAgent });
+		logger.warn(`Failed to create user.`, { authorizedUserEmail, email, clientIp, 'user-agent': userAgent });
 		return res.status(422).end();
 	}
 }
@@ -84,7 +84,7 @@ export async function createUser(req: Request, res: Response) {
 export async function deleteUser(req: Request, res: Response) {
 	const { id } = req.params;
 	/*istanbul ignore next line*/
-	const host = req.headers['host'] || '';
+	const clientIp = req.ip || '';
 	const userAgent = req.headers['user-agent'] || '';
 
 	const authorizedUserEmail = res.locals.authorizedUserEmail;
@@ -92,10 +92,10 @@ export async function deleteUser(req: Request, res: Response) {
 	const deletedUser: User | undefined = await dbDeleteUser(id);
 
 	if (deletedUser) {
-		logger.info(`User deleted successfully.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
+		logger.info(`User deleted successfully.`, { authorizedUserEmail, id, clientIp, 'user-agent': userAgent });
 		return res.status(204).end();
 	} else {
-		logger.warn(`Failed to delete user.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
+		logger.warn(`Failed to delete user.`, { authorizedUserEmail, id, clientIp, 'user-agent': userAgent });
 		return res.status(422).end();
 	}
 }
@@ -111,7 +111,7 @@ export async function updateUser(req: Request, res: Response) {
 		password: updatedPassword,
 	} = req.body;
 	/*istanbul ignore next line*/
-	const host = req.headers['host'] || '';
+	const clientIp = req.ip || '';
 	const userAgent = req.headers['user-agent'] || '';
 
 	const required: FieldErrors = new FieldErrors(RoutingErrors.INVALID_REQUEST);
@@ -134,7 +134,7 @@ export async function updateUser(req: Request, res: Response) {
 	const user: User | undefined = await dbGetUser(id);
 
 	if (!user) {
-		logger.warn(`User not found.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
+		logger.warn(`User not found.`, { authorizedUserEmail, id, clientIp, 'user-agent': userAgent });
 		return res.status(404).end();
 	}
 
@@ -145,7 +145,7 @@ export async function updateUser(req: Request, res: Response) {
 			email: user.email,
 			auth: user.auth,
 			updatedAuth,
-			host,
+			clientIp,
 			'user-agent': userAgent,
 		});
 		return res.status(403).end();
@@ -161,11 +161,11 @@ export async function updateUser(req: Request, res: Response) {
 	});
 
 	if (!updatedUser) {
-		logger.warn(`Failed to update user.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
+		logger.warn(`Failed to update user.`, { authorizedUserEmail, id, clientIp, 'user-agent': userAgent });
 		return res.status(422).end();
 	}
 
-	logger.info(`User updated successfully.`, { authorizedUserEmail, id, host, 'user-agent': userAgent });
+	logger.info(`User updated successfully.`, { authorizedUserEmail, id, clientIp, 'user-agent': userAgent });
 
 	return res.status(200).json(updatedUser).end();
 }
